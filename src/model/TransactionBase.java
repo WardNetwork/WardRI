@@ -25,8 +25,7 @@ public abstract class TransactionBase {
     
     protected long createdTimestamp;
     protected TransactionProof powProof;
-
-    //Signature ist hier, weil die Daten behalten werden sollten
+    
     protected HexString signature = null;
     
     protected boolean sealed = false;
