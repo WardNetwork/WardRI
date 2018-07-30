@@ -3,13 +3,15 @@ package model;
 import java.util.HashMap;
 import java.util.Map;
 
+import newMain.Transaction;
+
 public class Ledger {
 
 	Map<HexString, Double> ledger = new HashMap<>();
 	
 	boolean genesisTransaction = false;
 	
-	public Ledger(TransactionBase genesis){
+	public Ledger(Transaction genesis){
 		
 		ledger.put(genesis.getReciever(), (double)genesis.getValue());
 		genesisTransaction = true;
@@ -23,7 +25,7 @@ public class Ledger {
 	
 	public Ledger(){}
 	
-	public void addTransaction(TransactionBase t){
+	public void addTransaction(Transaction t){
 		
 		if(genesisTransaction){  //IF Genesistransaction was already issued
 			ledger.put(t.getSender(), doubleValue(ledger.get(t.getSender())) - t.getValue());
@@ -34,7 +36,7 @@ public class Ledger {
 		ledger.put(t.getReciever(), doubleValue(ledger.get(t.getReciever())) + t.getValue());
 	}
 	
-	public void correctTransaction(TransactionBase t){
+	public void correctTransaction(Transaction t){
 		
 		if(genesisTransaction){
 			
@@ -54,7 +56,7 @@ public class Ledger {
 		
 	}
 	
-	public boolean validTransaction(TransactionBase t){
+	public boolean validTransaction(Transaction t){
 		
 		Double d = ledger.get(t.getSender());
 		

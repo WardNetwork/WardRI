@@ -6,6 +6,7 @@ import org.rpanic.Responser;
 
 import Main.Tangle;
 import model.HexString;
+import newMain.CryptoUtil;
 import voting.DistributedVoting.DistributedVote;
 
 public class DistributedVotingResponser implements Responser<String, Socket> {
@@ -25,15 +26,16 @@ public class DistributedVotingResponser implements Responser<String, Socket> {
 		String[] tokens = response.split(" ");
 		//Request syntax: "voted voteCat true|false pubkey signature"
 		
-		HexString pubKey = HexString.fromHashString(tokens[3]);
+		String pubKey = tokens[3];
 		HexString signature = HexString.fromHashString(tokens[4]);
+		String signatureData = tokens[1] + " " + tokens[2] + " " + tokens[3];
 		
-		//TODO validate Signature
+		boolean valid = CryptoUtil.validateSignature(signature, CryptoUtil.publicKeyFromString(pubKey), signatureData.getBytes());
 			
-		DistributedVote vote = new DistributedVote(pubKey, tangle, Boolean.parseBoolean(tokens[2]));
-		DistributedVotingManager.getInstance(tangle).addVote(tokens[1], vote);
-		
-		
+		if(valid){
+			DistributedVote vote = new DistributedVote(HexString.fromHashString(pubKey), tangle, Boolean.parseBoolean(tokens[2]));
+			DistributedVotingManager.getInstance(tangle).addVote(tokens[1], vote);
+		}
 		
 	}
 	
