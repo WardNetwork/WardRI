@@ -1,32 +1,26 @@
-// 
-// Decompiled by Procyon v0.5.30
-// 
-
 package Interfaces;
 
 import java.util.Map;
 
-import org.rpanic.NeighborPool;
+import org.rpanic.GroupedNeighborPool;
 
 import Main.Tangle;
-import Main.Transaction;
+import newMain.Transaction;
 import model.HexString;
 import model.Ledger;
 import network.ObjectSerializer;
 
 public class NetworkTangleInterface implements TangleInterface
 {
-    Tangle tangle;
-    NeighborPool pool;
+    GroupedNeighborPool pool;
     
-    public NetworkTangleInterface(final Tangle tangle, final NeighborPool pool) {
-        this.tangle = tangle;
+    public NetworkTangleInterface(final GroupedNeighborPool pool) {
         this.pool = pool;
     }
     
     @Override
     public synchronized void addTranscation(final Transaction t) {
-        String request = t.store();
+        String request = new ObjectSerializer().serialize(t);
         request = "tx " + request;
         this.pool.broadcast(request);
     }
@@ -34,7 +28,7 @@ public class NetworkTangleInterface implements TangleInterface
     @Override
     public Ledger createLedger() {
     	String request = "ledger";
-        String response = this.pool.getRandomNeighbor().send(request);
+        String response = this.pool.getRandomNeighbor().send(request);  //TODO Was, wenn der Neighbor nicht responded etc...
         Map<HexString, Double> ledger = new ObjectSerializer().parseMap(response, x -> HexString.fromHashString(x), x -> Double.parseDouble(x));
         return new Ledger(ledger);
     }

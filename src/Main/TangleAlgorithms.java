@@ -13,6 +13,8 @@ import java.util.TreeMap;
 import model.Hash;
 import model.TangleTransaction;
 import model.TransactionBase;
+import newMain.DAG;
+import newMain.Transaction;
 
 public class TangleAlgorithms {
 	
@@ -23,14 +25,13 @@ public class TangleAlgorithms {
 	
 	public static List<Transaction> latestTxs = new ArrayList<>();
 	
-	//2nd try
-	public static Transaction electConfirmationTx(Tangle tangle, Transaction transaction){
+	public static Transaction electConfirmationTx(DAG dag, Transaction transaction){
 		
 //		int subListStart = tangle.transactions.size() - numOfLatestTx - 1;
 //		if(subListStart < 0){
 //			subListStart = 0;
 //		}
-		if(tangle.performantTransactions.size() == 0 ){
+		if(dag.getTransactionList().size() == 0 ){
 			addTransactionToCache(transaction);
 			return null;
 		}
@@ -58,7 +59,7 @@ public class TangleAlgorithms {
 		double totalProbability = 0D;
 		
 		for(Transaction t : latestTxs){
-			double probability = getTxSelectionProbability(transaction, t, sumTimeDiff);
+			double probability = getTxSelectionProbability(transaction.getCreatedTimestamp(), t, sumTimeDiff);
 			
 			map.put(t, probability);
 			
@@ -96,6 +97,42 @@ public class TangleAlgorithms {
 		
 	}
 	
+	public static Transaction electConfirmationTx2(DAG dag){
+		
+		long sumTimeDiff = dag.getTransactionList().stream().mapToLong(x -> calculateTimeDiff(System.currentTimeMillis(), x)).sum();
+		
+		Map<Transaction, Double> map = new HashMap<>();
+		double totalProbability = 0D;
+		
+		for(Transaction t : latestTxs){
+			double probability = getTxSelectionProbability(System.currentTimeMillis(), t, sumTimeDiff);
+			
+			map.put(t, probability);
+			
+			totalProbability += probability;
+		}
+		
+		double random = new Random().nextDouble() * totalProbability;
+		
+		Iterator<Transaction> iterator = map.keySet().iterator();
+		
+		Transaction tempTrans = iterator.next();
+		
+		for(double d = map.get(tempTrans) ; d <= totalProbability; d += map.get(tempTrans)){
+			
+			if(d >= random){
+				
+				return tempTrans;
+			}
+			
+			if(!iterator.hasNext()){
+				System.out.println("asd");
+			}
+			tempTrans = iterator.next();
+		}
+		return null;
+	}
+	
 	public static void addTransactionToCache(Transaction transaction){
 		if(!latestTxs.contains(transaction) && (latestTxs.size() == 0 || transaction.getCreatedTimestamp() > latestTxs.get(0).getCreatedTimestamp())){
 			if(latestTxs.size() < numOfLatestTx + 1){
@@ -108,21 +145,25 @@ public class TangleAlgorithms {
 		}
 	}
 	
-	public static long calculateTimeDiff(TransactionBase t1, TransactionBase t2){
+	public static long calculateTimeDiff(Transaction t1, Transaction t2){
 		
 		return t1.getCreatedTimestamp() - t2.getCreatedTimestamp();
 		
 	}
 	
-	public static double getTxSelectionProbability(Transaction base, Transaction candidate, long sumTimeDiff){
+	public static long calculateTimeDiff(long t1, Transaction t2){
+		return t1 - t2.getCreatedTimestamp();
+	}
+	
+	public static double getTxSelectionProbability(long now, Transaction candidate, long sumTimeDiff){
 		
 //		if(candidate.nodesWhichConfirmedMe.size() <= 1) {
 //			System.err.println();
 //		}
 		
-		double timeDiff = ((double)sumTimeDiff) / ((double)calculateTimeDiff(base, candidate));
+		double timeDiff = ((double)sumTimeDiff) / ((double)calculateTimeDiff(now, candidate));
 		
-		double sizeweight = candidate.getNodeWhichConfirmedThisNode().size();
+		double sizeweight = candidate.getConfirmedBy().size();
 		
 //		double result = 4.13D * Math.pow(Math.E, (-0.92) * sizeweight);  //Calculated with Geogebra
 //		double result = 6.22D * Math.pow(Math.E, (-0.85) * sizeweight);  //Calculated with Geogebra //0.85
@@ -130,7 +171,7 @@ public class TangleAlgorithms {
 		
 //		if(sizeweight == 0)
 //			return 1000000D;
-		if(candidate.getNodeWhichConfirmedThisNode().size() == 0)// && Tangle.getTangleInstance().validateTransaction(candidate))
+		if(candidate.getConfirmedBy().size() == 0)// && Tangle.getTangleInstance().validateTransaction(candidate))
 			return 1000D;
 //			result += 10 + timeDiff * timeDiffMultiplicator * 100;  //DEV Probiern
 		

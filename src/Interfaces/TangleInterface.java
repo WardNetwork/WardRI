@@ -6,13 +6,13 @@ package Interfaces;
 
 import java.util.Map;
 
-import Main.Transaction;
+import newMain.Transaction;
 import model.HexString;
 import model.Ledger;
 
 public interface TangleInterface
 {
-    void addTranscation(final Transaction p0);
+    void addTranscation(final Transaction p0);  //TODO Spelling mistake
     
     Ledger createLedger();
     

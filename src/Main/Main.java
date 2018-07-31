@@ -7,6 +7,7 @@ package Main;
 import java.io.File;
 import java.net.InetAddress;
 
+import org.rpanic.GroupedNeighborPool;
 import org.rpanic.ListenerThread;
 import org.rpanic.NeighborPool;
 import org.rpanic.NeighborRequestReponse;
@@ -23,6 +24,8 @@ import conf.FileConfigLoader;
 import database.DatabaseTangleInterface;
 import keys.KeyStore;
 import network.NeighborRequestResponseBuilder;
+import newMain.DAG;
+import newMain.RI;
 
 public class Main
 {
@@ -65,15 +68,12 @@ public class Main
             }
         }
         
+        RI ri = new RI();
+        ri.init(conf);
         
-        Tangle tangle = new Tangle(conf);
+        DAG dag = ri.getDAG();
         TangleVisualizer visualizer = new TangleVisualizer(tangle);
-        NeighborPool pool = new NeighborPool(entry, selfN, selfN.getPort());
-        
-
-    	TangleInterfaceDistributor distr = new TangleInterfaceDistributor(tangle);
-        distr.addTangleInterface(new LocalTangleInterface(tangle));
-        distr.addTangleInterface(new NetworkTangleInterface(tangle, pool));
+        GroupedNeighborPool pool = new GroupedNeighborPool(entry, selfN, selfN.getPort(), "testShard");
         
         TransactionIntegrater integrater = new TransactionIntegrater(tangle, distr);
         

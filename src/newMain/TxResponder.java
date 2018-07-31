@@ -32,8 +32,10 @@ public class TxResponder implements Responser<String, Socket>{
 		String[] tokenized = response.split(" ");
         
         if(tokenized[2].startsWith("0x")){
-        	System.out.println(response);  //DEBUG
+        	System.out.println(response);  
         }
+        
+        //TODO Replace with ObjectSerializer.parse(response);
         
         HexString sender = HexString.fromHashString(tokenized[0]);
         HexString reciever = HexString.fromHashString(tokenized[1]);

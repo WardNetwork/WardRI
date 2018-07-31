@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+import org.rpanic.GroupedNeighborPool;
 import org.rpanic.NeighborPool;
 
 import Interfaces.LocalTangleInterface;
@@ -18,15 +19,18 @@ import keys.KeyStore;
 import model.HexString;
 import model.Ledger;
 import model.TangleTransaction;
+import newMain.DAG;
+import newMain.RI;
+import newMain.TxInserter;
 
 public class CommandLineWaiter
 {
 	static Scanner sc;
 	
-    public static void startCommandLineInput(Tangle t, TangleInterfaceDistributor distr, TangleVisualizer visualizer, NeighborPool pool) {
+    public static void startCommandLineInput(RI ri, TangleVisualizer visualizer, GroupedNeighborPool pool) {
         
     	
-        TransactionIssuer issuer = new TransactionIssuer(t, distr, KeyStore.getPrivateKey(), KeyStore.getPublicKey());
+        //TransactionIssuer issuer = new TransactionIssuer(t, distr, KeyStore.getPrivateKey(), KeyStore.getPublicKey());
         
         sc = new Scanner(System.in);
         
@@ -34,19 +38,20 @@ public class CommandLineWaiter
         while (true) {
             final String s = sc.nextLine();
             try {
-                if (s.startsWith("tx")) {
+                /*if (s.startsWith("tx")) {
                 	
                     String[] arr = s.split(" ");
 //                    String hexReciever = Base62.fromBase62(arr[1]).getBase16();
                     HexString reciever = HexString.fromString(arr[1]);
                     Transaction trans = new Transaction(t.configuration.getHexString("publickey"), reciever, Integer.parseInt(arr[2]));
                     
-                    issuer.issue(trans);
+                    new TxInserter().issue(trans);
                     
-                }else if (s.startsWith("sh")) {
+                }*/
+                if (s.startsWith("sh")) {
                 	
-                    TangleInterface iTangle = distr.getInterfaceByName(LocalTangleInterface.class.getSimpleName());
-                    Ledger ledger = iTangle.createLedger();
+                    DAG dag = ri.getDAG();
+                    Ledger ledger = dag.createLedger();
                     Map<String, Double> ledger2 = new HashMap<>();
                     for (HexString h : ledger.getMap().keySet()) {
                         ledger2.put(h.getCompressed(), ledger.getBalance(h));
@@ -56,7 +61,7 @@ public class CommandLineWaiter
                     
                 }
                 else if (s.startsWith("v")) { //visualize
-                    TangleVisualizer v = new TangleVisualizer(((LocalTangleInterface)distr.getInterface(LocalTangleInterface.class)).tangle);
+                    TangleVisualizer v = new TangleVisualizer(ri.getDAG());
                     v.visualize();
                     distr.addTangleInterface(new VisualizerTangleInterface(v));
                 }

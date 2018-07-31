@@ -28,7 +28,7 @@ public class TxInserter {
 		
 		//  INSERT
 		
-		ri.getInsertables().forEach(x -> x.insertTransaction(transaction));
+		ri.getInsertables().forEach(x -> x.addTranscation(transaction));
 		
 	}
 	

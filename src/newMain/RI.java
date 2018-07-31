@@ -1,35 +1,49 @@
 package newMain;
 
+import java.security.KeyPair;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import Interfaces.TangleInterface;
 import conf.Configuration;
+import database.DatabaseDAG;
+import model.HexString;
 
 public class RI {
 
 	Configuration conf;
 	DAG dag;
-	List<Insertable> insertables;
+	DatabaseDAG dbdag;
+	List<TangleInterface> tangleInterfaces;
 	
 	public RI(){
-		insertables = new ArrayList<>();
+		tangleInterfaces = new ArrayList<>();
 	}
 	
 	public void init(Configuration conf){
 		this.conf = conf;
 		
 		dag = new DAG();
-		//DB
+		dbdag = new DatabaseDAG();
 		//Network Relay (Weiterleitung)
 		
-		insertables.add(dag);
+		tangleInterfaces.addAll(Arrays.asList(dag, dbdag));
 	}
 	
-	public List<Insertable> getInsertables(){
-		return insertables;
+	public List<TangleInterface> getInsertables(){
+		return tangleInterfaces;
 	}
 	
 	public DAG getDAG(){
 		return dag;
+	}
+	
+	public HexString getPublicKey(){
+		return null; //TODO unimplemented
+	}
+	
+	public KeyPair getKeyPair(){
+		return null; //TODO unimplemented
 	}
 }

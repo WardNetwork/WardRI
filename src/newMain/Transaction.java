@@ -45,7 +45,11 @@ public class Transaction implements Hashable{
 		this.signature = signature;
 		this.confirmed = confirmed;
 		this.TxId = CryptoUtil.hashSHA256(createHashString());
-		this.powProof = new TransactionProof(this.TxId, powProof);
+		if(powProof != null){
+			this.powProof = new TransactionProof(this.TxId, powProof);
+		}else{
+			this.powProof = new TransactionProof(this.TxId);
+		}
 	}
 
 	public double getNodePowWeight(){
@@ -55,7 +59,7 @@ public class Transaction implements Hashable{
 		return i * Math.pow(10.0, i);
     }
     
-    public double calculateCumulativeNodeWeight(final Tangle tangle) {
+    public double calculateCumulativeNodeWeight() {
 		final List<Transaction> alreadyChecked = new ArrayList<Transaction>();
 		double weight = 0.0;
 		final Queue<Transaction> q = new LinkedList<Transaction>();

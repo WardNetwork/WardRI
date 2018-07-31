@@ -1,7 +1,7 @@
 package Interfaces;
 
 import Main.TangleVisualizer;
-import Main.Transaction;
+import newMain.Transaction;
 import model.HexString;
 import model.Ledger;
 import model.TangleTransaction;

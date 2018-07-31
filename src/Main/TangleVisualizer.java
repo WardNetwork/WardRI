@@ -17,25 +17,27 @@ import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import model.Hash;
-import model.TangleTransaction;
+import newMain.DAG;
+import newMain.Transaction;
+import newMain.TransactionReference;
 
 public class TangleVisualizer {
 
-	Tangle tangle;
+	DAG dag;
 	Layout<String, String> layout;
 	BasicVisualizationServer<String,String> vv;
 	public int minCumWeightForAcceptance = 2000;
 	
-	public TangleVisualizer(Tangle t){
+	public TangleVisualizer(DAG dag){
 		
-		tangle = t;
+		this.dag = dag;
 		
 	}
 	
 	public void addEdge(Transaction t1, Hash t2) {
 		
 		//layout.getGraph().addEdge(t1.DEBUGgetDEBUGId()+""+t2.DEBUGgetDEBUGId(), t1.DEBUGgetDEBUGId()+"", t2.DEBUGgetDEBUGId()+"");
-		layout.getGraph().addEdge(t1.getTxHash().getHashString()+""+t2.getHashString(), t1.getTxHash()+"", t2.getHashString() +"");
+		layout.getGraph().addEdge(t1.getTxId().getHashString()+""+t2.getHashString(), t1.getTxId()+"", t2.getHashString() +"");
 		if(vv.isShowing())
 			vv.updateUI();
 		
@@ -43,8 +45,8 @@ public class TangleVisualizer {
 	
 	public void addTransaction(Transaction t){
 		
-		for(Hash child : t.getConfirmed()){
-			addEdge(t, child);
+		for(TransactionReference child : t.getConfirmed()){
+			addEdge(t, child.getTxId());
 		}
 		
 	}
@@ -55,11 +57,11 @@ public class TangleVisualizer {
 		
 		System.out.println("Started parsing the edges...");
 		
-		for(TangleTransaction t : tangle.performantTransactions){
+		for(Transaction t : dag.getTransactionList()){
 			
-			for(TangleTransaction t2 : t.getConfirmed()){
+			for(TransactionReference t2 : t.getConfirmed()){
 				
-				g.addEdge(t.DEBUGgetDEBUGId()+""+t2.DEBUGgetDEBUGId(), ""+t.DEBUGgetDEBUGId(), ""+t2.DEBUGgetDEBUGId(), EdgeType.DIRECTED);
+				//TODO g.addEdge(t.DEBUGgetDEBUGId()+""+t2.DEBUGgetDEBUGId(), ""+t.DEBUGgetDEBUGId(), ""+t2.DEBUGgetDEBUGId(), EdgeType.DIRECTED);
 				
 			}
 			

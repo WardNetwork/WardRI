@@ -6,11 +6,14 @@ package network;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
-import Main.Transaction;
+import newMain.Transaction;
+import newMain.TransactionReference;
 import keys.KeyStore;
 import model.Hash;
 import model.HexString;
@@ -34,44 +37,59 @@ public class ObjectSerializer
     	
         final List<String> str = new ArrayList<String>();
         
-        str.add(serialize((TransactionBase)t));
+        str.add(t.getSender().toString());
+        str.add(t.getReciever().toString());
+        str.add(t.getValue() + "");
+        str.add(t.getCreatedTimestamp() + "");
         
-//        str.add(t.getSender().toString());
-//        str.add(t.getReciever().toString());
-//        str.add(new StringBuilder(String.valueOf(t.getValue())).toString());
-//        str.add(new StringBuilder(String.valueOf(t.getCreatedTimestamp())).toString());
-//        
-//        if(t.getTransactionProof() == null || t.getTransactionProof().getSolution() == null) {
-//        	System.out.println("Transactionproof is null");
-//        }
-//        
-//        str.add(t.getTransactionProof().getSolution());
-        
-        
-        
-        if(!t.isSigned()) {
-        	if(!t.getSender().equals(HexString.fromHashString(KeyStore.getPublicString()))) {
-            	System.err.println("Cant sign message because its not yours!");
-            }
-        	t.sign(KeyStore.getPrivateKey(), KeyStore.getPublicKey());
+        if(t.getPowProof() == null || t.getPowProof().getSolution() == null) {
+        	System.out.println("Transactionproof is null");
         }
+        
+        str.add(t.getPowProof().getSolution());
         
         str.add(t.getSignature().getHashString());
         
-        for (Hash confirmed : t.getConfirmed()) {
-
-            //TODO DEV
-            if(HexString.fromHashString(confirmed.getHashString()).getHash().length != confirmed.getHash().length) {
-            	System.out.println("ERRORORORORO");
-            }
+        for (TransactionReference confirmed : t.getConfirmed()) {
             
+            str.add(confirmed.getTxId().getHashString());
             
-            str.add(confirmed.getHashString());
         }
         
         return String.join(" ", str);
     }
     
+    public Transaction parseTransaction(String s) {
+    	try{
+	        String[] tokenized = s.split(" ");
+	        
+	        if(tokenized[2].startsWith("0x")){
+	        	System.out.println(s);
+	        }
+	        
+	        HexString sender = HexString.fromHashString(tokenized[0]);
+	        HexString reciever = HexString.fromHashString(tokenized[1]);
+	        double value = Integer.parseInt(tokenized[2]);
+	        long createdTimestamp = Long.parseLong(tokenized[3]);
+	        
+	        String powSolution = tokenized[4];
+	        HexString signature = HexString.fromHashString(tokenized[5]);
+	        Set<TransactionReference> confirmed = new HashSet<>();
+	        for (int i = 6; i < tokenized.length; ++i) {
+	            String confirmation = tokenized[i];
+	            confirmed.add(new TransactionReference(Hash.fromHashString(confirmation)));
+	        }
+	        
+	        Transaction t = new Transaction(sender, reciever, value, null /* TODO */, createdTimestamp, powSolution, signature, confirmed);
+	        
+	        return t;
+    	}catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	return null;
+    }
+    
+    //TODO Remove
     public String serialize(TangleTransaction t) {
 
     	List<String> str = new ArrayList<String>();
@@ -92,6 +110,7 @@ public class ObjectSerializer
         return String.join(" ", str);
     }
     
+    //TODO Remove
     public String serialize(TransactionBase t) {
     	
     	List<String> str = new ArrayList<String>();
@@ -110,31 +129,7 @@ public class ObjectSerializer
         return String.join(" ", str);
     }
     
-    /**
-     * Not for actual DAG purposes!!
-     */
-    public Transaction parseTransaction(String s) {
-    	try{  //TODO DEV
-	        String[] tokenized = s.split(" ");
-	        
-	        if(tokenized[2].startsWith("0x")){
-	        	System.out.println(s);
-	        }
-	        
-	        Transaction t = new Transaction(HexString.fromHashString(tokenized[0]), HexString.fromHashString(tokenized[1]), Integer.parseInt(tokenized[2]), Long.parseLong(tokenized[3]));
-	        t.setPoWSolution(tokenized[4]);
-	        t.setSignature(HexString.fromHashString(tokenized[5]));
-	        for (int i = 6; i < tokenized.length; ++i) {
-	            String confirmation = tokenized[i];
-	            t.getConfirmed().add(Hash.fromHashString(confirmation));
-	        }
-//	        t.finish();
-	        return t;
-    	}catch(Exception e){
-    		e.printStackTrace();
-    	}
-    	return null;
-    }
+    
     
     public <K, V> Map<K, V> parseMap(final String s, Function<String, K> keyConverter, Function<String, V> valueConverter) {
         if (keyConverter == null) {
