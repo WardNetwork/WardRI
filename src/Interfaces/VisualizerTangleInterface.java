@@ -6,7 +6,7 @@ import model.HexString;
 import model.Ledger;
 import model.TangleTransaction;
 
-public class VisualizerTangleInterface implements TangleInterface
+public class VisualizerTangleInterface implements DAGInsertable
 {
     public TangleVisualizer visualizer;
     

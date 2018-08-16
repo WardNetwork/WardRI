@@ -10,7 +10,7 @@ import model.HexString;
 import model.Ledger;
 import network.ObjectSerializer;
 
-public class NetworkTangleInterface implements TangleInterface
+public class NetworkTangleInterface implements DAGInsertable
 {
     GroupedNeighborPool pool;
     

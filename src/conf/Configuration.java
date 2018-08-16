@@ -1,5 +1,7 @@
 package conf;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +50,15 @@ public class Configuration {
     		return HexString.fromHashString(o.toString());
     	}
         return null;
+    }
+    
+    public InetAddress getInetAddress(String s){
+    	try {
+			return InetAddress.getByName(getString(s));
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			return null;
+		}
     }
 	
 	public static final String NEIGHBOR = "neighbor";

@@ -5,8 +5,8 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 
 import Interfaces.LocalTangleInterface;
-import Interfaces.TangleInterface;
-import Interfaces.TangleInterfaceDistributor;
+import Interfaces.DAGInsertable;
+import Interfaces.DAGInsertable;
 import Main.CommandLineWaiter;
 import Main.MainGenesisNode;
 import Main.Tangle;
@@ -32,7 +32,7 @@ public class TangleSpeedTest {
 		
 		Tangle t = MainGenesisNode.t;
 		
-		final TangleInterfaceDistributor distributor = new TangleInterfaceDistributor(t, new TangleInterface[] { new LocalTangleInterface(t)/*, new NetworkTangleInterface(t, pool)*/ });
+		final TangleInterfaceDistributor distributor = new TangleInterfaceDistributor(t, new DAGInsertable[] { new LocalTangleInterface(t)/*, new NetworkTangleInterface(t, pool)*/ });
 		
 		HexString sender = t.configuration.getHexString(Configuration.PUBLICKEY);
 		

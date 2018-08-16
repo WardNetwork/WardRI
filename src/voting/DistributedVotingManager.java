@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import Main.Tangle;
+import newMain.DAG;
 import voting.DistributedVoting.DistributedVote;
 
 public class DistributedVotingManager {
 
 	private final List<DistributedVoting> runningVotes = new ArrayList<>();
 	private Map<String, Status> closedVotes = new HashMap<>();
-	private Tangle tangle = null;
+	private DAG dag = null;
 	
 	public void addVote(String voteCat, DistributedVote vote){
 		
@@ -25,7 +25,7 @@ public class DistributedVotingManager {
 			}
 		}else{
 			if(!closedVotes.containsKey(voteCat)){
-				voting = new DistributedVoting(voteCat, tangle);
+				voting = new DistributedVoting(voteCat, dag);
 				runningVotes.add(voting);
 			}
 		}
@@ -53,9 +53,9 @@ public class DistributedVotingManager {
 	}
 	
 	private static DistributedVotingManager instance = new DistributedVotingManager();
-	public static DistributedVotingManager getInstance(Tangle tangle){
-		if(instance.tangle == null && tangle != null){
-			instance.tangle = tangle;
+	public static DistributedVotingManager getInstance(DAG tangle){
+		if(instance.dag == null && tangle != null){
+			instance.dag = tangle;
 		}
 		return instance;
 	}

@@ -69,18 +69,18 @@ public class TangleVisualizer {
 		
 		System.out.println("Edges finished, starting rendering");
 		
-		Map<String, TangleTransaction> transIds = new HashMap<>();
+		Map<String, Transaction> transIds = new HashMap<>();
 		
-		for(TangleTransaction t : tangle.performantTransactions) {
+		for(Transaction t : dag.getTransactionList()) {
 			transIds.put(t.DEBUGgetDEBUGId()+"", t);
 		}
 		
 		Transformer<String,Paint> vertexPaint = new Transformer<String,Paint>() {
 			 public Paint transform(String i) {
-				 TangleTransaction t = transIds.get(i);
+				 Transaction t = transIds.get(i);
 				 
 				 if(t == null){
-					 for(TangleTransaction temp : tangle.performantTransactions){
+					 for(Transaction temp : dag.getTransactionList()){
 						 if(temp.DEBUGgetDEBUGId() == Integer.parseInt(i)){
 							 transIds.put(i, temp);
 							 t = temp;
@@ -91,7 +91,7 @@ public class TangleVisualizer {
 					 return Color.RED;
 				 
 				 if((t.DEBUGgetDEBUGId()+"").equals(i)) {
-					 if(t.calculateCumulativeNodeWeight(tangle) > minCumWeightForAcceptance){
+					 if(t.calculateCumulativeNodeWeight() > minCumWeightForAcceptance){
 						 return Color.GREEN;
 					 }else {
 						 return Color.RED;

@@ -5,12 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import Interfaces.TangleInterface;
+import Interfaces.DAGInsertable;
 import model.Hash;
 import model.HexString;
 import model.Ledger;
 
-public class DAG implements Insertable, TangleInterface{
+public class DAG implements Insertable, DAGInsertable{
 	
 	Map<Hash, Transaction> transactions = new HashMap<>();
 	List<Transaction> transactionList = new ArrayList<>();

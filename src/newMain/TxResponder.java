@@ -1,15 +1,11 @@
 package newMain;
 
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.rpanic.Responser;
 
-import Main.Tangle;
-import Main.TransactionProof;
 import model.Hash;
 import model.HexString;
 

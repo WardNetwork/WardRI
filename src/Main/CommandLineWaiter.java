@@ -9,8 +9,8 @@ import org.rpanic.GroupedNeighborPool;
 import org.rpanic.NeighborPool;
 
 import Interfaces.LocalTangleInterface;
-import Interfaces.TangleInterface;
-import Interfaces.TangleInterfaceDistributor;
+import Interfaces.DAGInsertable;
+import Interfaces.DAGInsertable;
 import Interfaces.VisualizerTangleInterface;
 import conf.Configuration;
 import keys.Adam;

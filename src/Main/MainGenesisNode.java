@@ -1,7 +1,3 @@
-// 
-// Decompiled by Procyon v0.5.30
-// 
-
 package Main;
 
 import java.net.InetAddress;
@@ -17,8 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import Interfaces.LocalTangleInterface;
 import Interfaces.NetworkTangleInterface;
-import Interfaces.TangleInterface;
-import Interfaces.TangleInterfaceDistributor;
+import Interfaces.DAGInsertable;
+import Interfaces.DAGInsertable;
 import conf.ArgsConfigLoader;
 import conf.Configuration;
 import keys.KeyStore;
@@ -76,7 +72,7 @@ public class MainGenesisNode
     }
     
     public static void genesisTranscation(final Tangle tangle, final NeighborPool pool, final HexString sender, final HexString reciever) {
-        final TangleInterfaceDistributor distributor = new TangleInterfaceDistributor(tangle, new TangleInterface[] { new LocalTangleInterface(tangle), new NetworkTangleInterface(tangle, pool) });
+        final TangleInterfaceDistributor distributor = new TangleInterfaceDistributor(tangle, new DAGInsertable[] { new LocalTangleInterface(tangle), new NetworkTangleInterface(tangle, pool) });
 //        
 //    	List<TangleInterface> interfs = distributor.getInterfaces();
 //    	TangleInterface localInterf = interfs.stream().filter(x -> x.getClass().getName().equals(LocalTangleInterface.class)).collect(Collectors.toList()).get(0);

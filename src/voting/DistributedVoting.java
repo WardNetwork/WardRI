@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import Main.Tangle;
 import model.HexString;
-import model.TangleTransaction;
+import newMain.DAG;
+import newMain.Transaction;
 import voting.DistributedVotingManager.Status;
 
 public class DistributedVoting {
@@ -15,14 +15,14 @@ public class DistributedVoting {
 	List<DistributedVote> list;
 	double totalWeight;
 	
-	public DistributedVoting(String id, Tangle tangle){
+	public DistributedVoting(String id, DAG dag){
 		
 		this.id = id;
 		
-		Map<HexString, List<TangleTransaction>> map = tangle.performantTransactions.stream()
-				.collect(Collectors.groupingBy(TangleTransaction::getSender));
+		Map<HexString, List<Transaction>> map = dag.getTransactionList().stream()
+				.collect(Collectors.groupingBy(Transaction::getSender));
 		
-		for(List<TangleTransaction> values : map.values()){
+		for(List<Transaction> values : map.values()){
 			
 			totalWeight += getVotingWeight(values);
 			
@@ -57,9 +57,9 @@ public class DistributedVoting {
 				.getAsDouble();
 	}
 	
-	public static double getVotingWeight(List<TangleTransaction> list){
+	public static double getVotingWeight(List<Transaction> list){
 		
-		double temp = list.stream().mapToDouble(TangleTransaction::getNodeWeight)
+		double temp = list.stream().mapToDouble(Transaction::getNodePowWeight)
 				.reduce((x, y) -> x + y)
 				.getAsDouble();
 		
@@ -83,9 +83,9 @@ public class DistributedVoting {
 			this.vote = vote;
 		}
 		
-		public DistributedVote(HexString pubKey, Tangle tangle, boolean vote){
+		public DistributedVote(HexString pubKey, DAG dag, boolean vote){
 			double totalweight = DistributedVoting.getVotingWeight(
-				tangle.performantTransactions
+				dag.getTransactionList()
 				.stream()
 				.filter(tx -> tx.getSender().equals(pubKey))
 				.collect(Collectors.toList())

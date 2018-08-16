@@ -1,7 +1,3 @@
-// 
-// Decompiled by Procyon v0.5.30
-// 
-
 package Interfaces;
 
 import java.util.Map;
@@ -10,7 +6,7 @@ import newMain.Transaction;
 import model.HexString;
 import model.Ledger;
 
-public interface TangleInterface
+public interface DAGInsertable
 {
     void addTranscation(final Transaction p0);  //TODO Spelling mistake
     

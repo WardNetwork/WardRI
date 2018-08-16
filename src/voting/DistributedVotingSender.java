@@ -1,21 +1,21 @@
 package voting;
 
-import org.rpanic.NeighborPool;
+import org.rpanic.GroupedNeighborPool;
 
-import Main.Tangle;
 import model.HexString;
+import newMain.DAG;
 import voting.DistributedVoting.DistributedVote;
 
 public class DistributedVotingSender {
 	
-	NeighborPool pool;
+	GroupedNeighborPool pool;
 	HexString pubKey;
-	Tangle tangle;
+	DAG dag;
 	
-	public DistributedVotingSender(NeighborPool pool, HexString pubKey, Tangle tangle){
+	public DistributedVotingSender(GroupedNeighborPool pool, HexString pubKey, DAG dag){
 		this.pool = pool;
 		this.pubKey = pubKey;
-		this.tangle = tangle;
+		this.dag = dag;
 	}
 	
 	public void voteFor(String voteCat, boolean vote) {
@@ -24,7 +24,7 @@ public class DistributedVotingSender {
 		
 		pool.broadcast(request);
 		
-		DistributedVotingManager.getInstance(tangle).addVote(voteCat, new DistributedVote(pubKey, tangle, vote));
+		DistributedVotingManager.getInstance(dag).addVote(voteCat, new DistributedVote(pubKey, dag, vote));
 		
 	}
 	

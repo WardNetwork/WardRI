@@ -1,29 +1,13 @@
-// 
-// Decompiled by Procyon v0.5.30
-// 
-
 package Main;
 
 import java.io.File;
-import java.net.InetAddress;
 
-import org.rpanic.GroupedNeighborPool;
-import org.rpanic.ListenerThread;
-import org.rpanic.NeighborPool;
-import org.rpanic.NeighborRequestReponse;
-import org.rpanic.TCPNeighbor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import Interfaces.LocalTangleInterface;
-import Interfaces.NetworkTangleInterface;
-import Interfaces.TangleInterfaceDistributor;
 import conf.ArgsConfigLoader;
 import conf.Configuration;
 import conf.FileConfigLoader;
-import database.DatabaseTangleInterface;
-import keys.KeyStore;
-import network.NeighborRequestResponseBuilder;
 import newMain.DAG;
 import newMain.RI;
 
@@ -48,44 +32,15 @@ public class Main
         }
         log.info("Starting Node on Port " + conf.getInt(Configuration.SELFPORT));
         
-        final TCPNeighbor entry = new TCPNeighbor(InetAddress.getByName(conf.getString(Configuration.NEIGHBOR)));
-        entry.setPort(conf.getInt(Configuration.PORT));
-        final TCPNeighbor selfN = new TCPNeighbor(InetAddress.getByName(conf.getString(Configuration.SELF)));
-        selfN.setPort(conf.getInt(Configuration.SELFPORT));
-        
-        
-        KeyStore.PATH = KeyStore.PATH + "/" + conf.getInt(Configuration.SELFPORT);
-        if (conf.getHexString(Configuration.PRIVATEKEY) != null && conf.getHexString(Configuration.PUBLICKEY) != null) {
-            KeyStore.importNewKeypair(conf.getHexString(Configuration.PUBLICKEY).getHashString(), conf.getHexString(Configuration.PRIVATEKEY).getHashString());
-        }
-        else {
-            if (conf.getHexString(Configuration.PRIVATEKEY) == null && conf.getHexString(Configuration.PUBLICKEY) == null) {
-                conf.put(Configuration.PRIVATEKEY, KeyStore.getPrivateString());
-                conf.put(Configuration.PUBLICKEY, KeyStore.getPublicString());
-            }else {
-            	log.error("You can´t input only one part of the key");
-            	//TODO Public key aus Privatekey erzeugen
-            }
-        }
-        
         RI ri = new RI();
         ri.init(conf);
         
         DAG dag = ri.getDAG();
-        TangleVisualizer visualizer = new TangleVisualizer(tangle);
-        GroupedNeighborPool pool = new GroupedNeighborPool(entry, selfN, selfN.getPort(), "testShard");
-        
-        TransactionIntegrater integrater = new TransactionIntegrater(tangle, distr);
-        
-        NeighborRequestReponse responser = NeighborRequestResponseBuilder.buildNewDefault(tangle, integrater, pool);
-        ListenerThread.startListeningThreadTcp(selfN.getPort(), responser);
-        pool.init();
+        TangleVisualizer visualizer = new TangleVisualizer(dag);
         
         Thread.sleep(5000L);
         
-        TangleInterfaceDistributor syncDistributor = new TangleInterfaceDistributor(tangle, new LocalTangleInterface(tangle), new DatabaseTangleInterface());
-        
-        new TangleSynchronizer(tangle, syncDistributor, entry, pool).synchronize();
-        CommandLineWaiter.startCommandLineInput(tangle, distr, visualizer, pool);
+        //new TangleSynchronizer(tangle, syncDistributor, entry, pool).synchronize();
+        CommandLineWaiter.startCommandLineInput(ri, visualizer, ri.getShardedPool());
     }
 }

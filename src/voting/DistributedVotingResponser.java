@@ -4,14 +4,14 @@ import java.net.Socket;
 
 import org.rpanic.Responser;
 
-import Main.Tangle;
 import model.HexString;
 import newMain.CryptoUtil;
+import newMain.DAG;
 import voting.DistributedVoting.DistributedVote;
 
 public class DistributedVotingResponser implements Responser<String, Socket> {
 
-	Tangle tangle;
+	DAG dag;
 	
 	@Override
 	public boolean acceptable(String responseType) {
@@ -33,8 +33,8 @@ public class DistributedVotingResponser implements Responser<String, Socket> {
 		boolean valid = CryptoUtil.validateSignature(signature, CryptoUtil.publicKeyFromString(pubKey), signatureData.getBytes());
 			
 		if(valid){
-			DistributedVote vote = new DistributedVote(HexString.fromHashString(pubKey), tangle, Boolean.parseBoolean(tokens[2]));
-			DistributedVotingManager.getInstance(tangle).addVote(tokens[1], vote);
+			DistributedVote vote = new DistributedVote(HexString.fromHashString(pubKey), dag, Boolean.parseBoolean(tokens[2]));
+			DistributedVotingManager.getInstance(dag).addVote(tokens[1], vote);
 		}
 		
 	}
