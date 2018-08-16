@@ -6,9 +6,6 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import org.rpanic.GroupedNeighborPool;
-import org.rpanic.NeighborPool;
-
-import Interfaces.LocalTangleInterface;
 import Interfaces.DAGInsertable;
 import Interfaces.DAGInsertable;
 import Interfaces.VisualizerTangleInterface;
@@ -18,7 +15,6 @@ import keys.Base62;
 import keys.KeyStore;
 import model.HexString;
 import model.Ledger;
-import model.TangleTransaction;
 import newMain.DAG;
 import newMain.RI;
 import newMain.TxInserter;

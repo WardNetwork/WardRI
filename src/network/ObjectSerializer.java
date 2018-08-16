@@ -13,8 +13,6 @@ import newMain.TransactionReference;
 import keys.KeyStore;
 import model.Hash;
 import model.HexString;
-import model.TangleTransaction;
-import model.TransactionBase;
 
 public class ObjectSerializer
 {
@@ -84,48 +82,6 @@ public class ObjectSerializer
     	}
     	return null;
     }
-    
-    //TODO Remove
-    public String serialize(TangleTransaction t) {
-
-    	List<String> str = new ArrayList<String>();
-    	
-    	str.add(serialize((TransactionBase)t));
-        
-        if(!t.isSigned()) {
-        	System.err.println("Message not signed!! Aborting");
-        	return null;
-        }else {
-        	str.add(t.getSignature().getHashString());
-        }
-        
-        for(TangleTransaction conf : t.getConfirmed()) {
-        	str.add(conf.getTxHash().getHashString());
-        }
-        
-        return String.join(" ", str);
-    }
-    
-    //TODO Remove
-    public String serialize(TransactionBase t) {
-    	
-    	List<String> str = new ArrayList<String>();
-        
-        str.add(t.getSender().toString());
-        str.add(t.getReciever().toString());
-        str.add(t.getValue() + "");
-        str.add(t.getCreatedTimestamp() + "");
-        
-        if(t.getTransactionProof() == null || t.getTransactionProof().getSolution() == null) {
-        	System.out.println("Transactionproof is null");
-        }
-        
-        str.add(t.getTransactionProof().getSolution());
-        
-        return String.join(" ", str);
-    }
-    
-    
     
     public <K, V> Map<K, V> parseMap(final String s, Function<String, K> keyConverter, Function<String, V> valueConverter) {
         if (keyConverter == null) {

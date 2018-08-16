@@ -5,7 +5,7 @@ package newMain;
  */
 public class TxInserter {
 	
-	public void insert(Transaction transaction, RI ri){
+	public boolean insert(Transaction transaction, RI ri){
 		
 		DAG dag = ri.getDAG();
 		
@@ -21,7 +21,7 @@ public class TxInserter {
 		valid = CryptoUtil.validateSignature(transaction.getSignature(), CryptoUtil.publicKeyFromString(transaction.getSender().getHashString()), transaction.createHashString().getBytes()) && valid;
 		
 		if(!valid){
-			return;
+			return valid;
 		}
 		
 		//  Calculate - kp was ich damit gemeint habe
@@ -29,6 +29,8 @@ public class TxInserter {
 		//  INSERT
 		
 		ri.getInsertables().forEach(x -> x.addTranscation(transaction));
+		
+		return valid;
 		
 	}
 	

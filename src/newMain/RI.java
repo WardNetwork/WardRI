@@ -16,9 +16,7 @@ import database.DatabaseDAG;
 import keys.KeyStore;
 import model.HexString;
 import network.LedgerResponser;
-import network.NeighborRequestResponseBuilder;
 import network.TangleSyncResponser;
-import network.TxResponser;
 
 public class RI {
 
@@ -27,20 +25,26 @@ public class RI {
 	DatabaseDAG dbdag;
 	List<DAGInsertable> tangleInterfaces;
 	
-	GroupedNeighborPool shardedPool;
+	public GroupedNeighborPool shardedPool;
+	boolean isGenesis = false;
 	
 	public RI(){
 		tangleInterfaces = new ArrayList<>();
+	}
+	
+	public RI(boolean isGenesis){
+		this();
+		this.isGenesis = isGenesis;
 	}
 	
 	public void init(Configuration conf){
 		this.conf = conf;
 		
 		dag = new DAG();
-		dbdag = new DatabaseDAG();
+		//dbdag = new DatabaseDAG();
 		//Network Relay (Weiterleitung)
 		
-		tangleInterfaces.addAll(Arrays.asList(dag, dbdag));
+		tangleInterfaces.addAll(Arrays.asList(dag/*, dbdag*/));
 
 		initNetwork();
 		initKeys();
@@ -66,10 +70,14 @@ public class RI {
 	}
 	
 	public void initNetwork(){
+
+		TCPNeighbor entry = null;
+		if(!isGenesis){
+			entry = new TCPNeighbor(conf.getInetAddress(Configuration.NEIGHBOR));
+	        entry.setPort(conf.getInt(Configuration.PORT));
+		}
 		
-		final TCPNeighbor entry = new TCPNeighbor(conf.getInetAddress(Configuration.NEIGHBOR));
-        entry.setPort(conf.getInt(Configuration.PORT));
-        final TCPNeighbor selfN = new TCPNeighbor(conf.getInetAddress(Configuration.SELF));
+        TCPNeighbor selfN = new TCPNeighbor(conf.getInetAddress(Configuration.SELF));
         selfN.setPort(conf.getInt(Configuration.SELFPORT));
         
         GroupedNeighborPool shardPool = new GroupedNeighborPool(entry, selfN, selfN.getPort(), "shard");
@@ -105,10 +113,10 @@ public class RI {
 	}
 	
 	public HexString getPublicKey(){
-		return null; //TODO unimplemented
+		return HexString.fromHashString(KeyStore.getPublicString());
 	}
 	
 	public KeyPair getKeyPair(){
-		return null; //TODO unimplemented
+		return new KeyPair(KeyStore.getPublicKey(), KeyStore.getPrivateKey());
 	}
 }

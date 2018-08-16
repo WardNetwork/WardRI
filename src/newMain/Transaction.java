@@ -18,7 +18,7 @@ public class Transaction implements Hashable{
 	protected static Logger log = LoggerFactory.getLogger(Transaction.class);
 	
 	private Hash TxId;
-	private HexString sender;
+	public HexString sender; //TODO private
 	private HexString reciever;
 	
 	private double value;

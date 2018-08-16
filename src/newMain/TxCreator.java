@@ -50,7 +50,8 @@ public class TxCreator {
 		Set<Transaction> elected = new HashSet<>();
 		
 		if (dag.transactionList.size() <= 2) {
-            return null;
+            elected.addAll(dag.getTransactionList());
+            return elected;
         }
         Transaction temp = null;
         for (int i = 0; i < 100 && elected.size() < 2; ++i){
