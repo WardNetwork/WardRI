@@ -1,10 +1,9 @@
 package Interfaces;
 
 import Main.TangleVisualizer;
-import newMain.Transaction;
 import model.HexString;
 import model.Ledger;
-import model.TangleTransaction;
+import newMain.Transaction;
 
 public class VisualizerTangleInterface implements DAGInsertable
 {

@@ -3,25 +3,26 @@ package Main;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 import org.rpanic.GroupedNeighborPool;
-import Interfaces.DAGInsertable;
-import Interfaces.DAGInsertable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import Interfaces.VisualizerTangleInterface;
-import conf.Configuration;
-import keys.Adam;
 import keys.Base62;
-import keys.KeyStore;
 import model.HexString;
 import model.Ledger;
 import newMain.DAG;
 import newMain.RI;
+import newMain.Transaction;
+import newMain.TxCreator;
 import newMain.TxInserter;
 
 public class CommandLineWaiter
 {
 	static Scanner sc;
+	
+	static Logger log = LoggerFactory.getLogger(CommandLineWaiter.class);
 	
     public static void startCommandLineInput(RI ri, TangleVisualizer visualizer, GroupedNeighborPool pool) {
         
@@ -34,17 +35,22 @@ public class CommandLineWaiter
         while (true) {
             final String s = sc.nextLine();
             try {
-                /*if (s.startsWith("tx")) {
+                if (s.startsWith("tx")) {
                 	
                     String[] arr = s.split(" ");
-//                    String hexReciever = Base62.fromBase62(arr[1]).getBase16();
+                    
                     HexString reciever = HexString.fromString(arr[1]);
-                    Transaction trans = new Transaction(t.configuration.getHexString("publickey"), reciever, Integer.parseInt(arr[2]));
+                    Transaction trans = new TxCreator(ri).create(reciever, Integer.parseInt(arr[2]), null);
                     
-                    new TxInserter().issue(trans);
+                    new TxInserter().insert(trans, ri);
                     
-                }*/
-                if (s.startsWith("sh")) {
+                }
+            	if(s.startsWith("st")){ //Status
+            		
+            		System.out.println(ri.getDAG().getTransactionList().toString());
+            		
+            	}
+                else if (s.startsWith("sh")) {
                 	
                     DAG dag = ri.getDAG();
                     Ledger ledger = dag.createLedger();
@@ -59,27 +65,27 @@ public class CommandLineWaiter
                 else if (s.startsWith("v")) { //visualize
                     TangleVisualizer v = new TangleVisualizer(ri.getDAG());
                     v.visualize();
-                    distr.addTangleInterface(new VisualizerTangleInterface(v));
+                    ri.getInsertables().add(new VisualizerTangleInterface(v));
                 }
-                else if (s.startsWith("w")) { //weight
+                /*else if (s.startsWith("w")) { //weight
                     String[] arr = s.split(" ");
                     String tx = arr[1];
                     int txId = Integer.parseInt(tx);
                     TangleTransaction tr = t.performantTransactions.stream().filter(x -> x.DEBUGgetDEBUGId() == txId).collect(Collectors.toList()).get(0);
                     System.out.println("Cumulative Weight: " + tr.calculateCumulativeNodeWeight(t));
-                }
+                }*/
                 else if (s.startsWith("setmin")) { //setminweight of visualizer
-                    ((VisualizerTangleInterface)distr.getInterface(VisualizerTangleInterface.class)).visualizer.minCumWeightForAcceptance = Integer.parseInt(s.split(" ")[1]);
+                    visualizer.minCumWeightForAcceptance = Integer.parseInt(s.split(" ")[1]);
                 }
                 else if (s.startsWith("self")) {
-                    System.out.println(Base62.fromBase16(t.configuration.getHexString(Configuration.PUBLICKEY).getHashString()).getBase62());
-                    System.out.println(t.configuration.getHexString(Configuration.PUBLICKEY).getHashString());
+                    System.out.println(Base62.fromBase16(ri.getPublicKey().getHashString()).getBase62());
+                    System.out.println(ri.getPublicKey().getHashString());
                 }else if(s.startsWith("bal")) { //balance
-                	System.out.println("Balance: " + distr.getInterface(LocalTangleInterface.class).getBalance(HexString.fromHashString(s.split(" ")[1])));
+                	System.out.println("Balance: " + ri.getDAG().getBalance(HexString.fromHashString(s.split(" ")[1])));
                 	
-                }else if(s.startsWith("tan")) {
+                }/*else if(s.startsWith("tan")) {
                 	t.printOutTangleStats();
-                }
+                }*/
             }
             catch (Exception e) {
                 e.printStackTrace();

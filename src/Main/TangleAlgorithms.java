@@ -2,17 +2,13 @@ package Main;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.TreeMap;
+import java.util.stream.Collectors;
 
-import model.Hash;
-import model.TangleTransaction;
-import model.TransactionBase;
 import newMain.DAG;
 import newMain.Transaction;
 
@@ -97,14 +93,14 @@ public class TangleAlgorithms {
 		
 	}
 	
-	public static Transaction electConfirmationTx2(DAG dag){
+	public static Transaction electConfirmationTx2(DAG dag){  //TODO Performant machen (Mit latestTx z.B.)
 		
 		long sumTimeDiff = dag.getTransactionList().stream().mapToLong(x -> calculateTimeDiff(System.currentTimeMillis(), x)).sum();
 		
 		Map<Transaction, Double> map = new HashMap<>();
 		double totalProbability = 0D;
 		
-		for(Transaction t : latestTxs){
+		for(Transaction t : dag.getTransactionList().stream().sorted((x, y) -> Long.compare(x.getCreatedTimestamp(), y.getCreatedTimestamp())).limit(numOfLatestTx).collect(Collectors.toList())){
 			double probability = getTxSelectionProbability(System.currentTimeMillis(), t, sumTimeDiff);
 			
 			map.put(t, probability);

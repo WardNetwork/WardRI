@@ -1,6 +1,7 @@
 package newMain;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -28,7 +29,7 @@ public class Transaction implements Hashable{
 	private long createdTimestamp;
 	protected TransactionProof powProof;
     
-    protected HexString signature;
+    public HexString signature;//TODO private
     
     protected Set<TransactionReference> confirmed;
     protected Set<Transaction> confirmedBy;
@@ -43,6 +44,7 @@ public class Transaction implements Hashable{
 		this.createdTimestamp = createdTimestamp;
 		this.signature = signature;
 		this.confirmed = confirmed;
+		this.confirmedBy = new HashSet<>();
 		this.TxId = CryptoUtil.hashSHA256(createHashString());
 		if(powProof != null){
 			this.powProof = new TransactionProof(this.TxId, powProof);
@@ -50,6 +52,10 @@ public class Transaction implements Hashable{
 			this.powProof = new TransactionProof(this.TxId);
 		}
 	}
+    
+    public void genesisRecalculateTxId(){
+		this.TxId = CryptoUtil.hashSHA256(createHashString());
+    }
 
 	public double getNodePowWeight(){
     	String powResult;
@@ -124,5 +130,13 @@ public class Transaction implements Hashable{
     	
     	return s;
 	}
+
+	@Override
+	public String toString() {
+		return "Transaction {" + TxId + " from " + sender + " to " + reciever + " valuing " + value
+				+ ". data=" + data + ", createdTimestamp=" + createdTimestamp + ", confirmed=" + confirmed.toString() + "]";
+	}
+	
+	
 	
 }

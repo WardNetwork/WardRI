@@ -63,7 +63,7 @@ public class ObjectSerializer
 	        
 	        HexString sender = HexString.fromHashString(tokenized[0]);
 	        HexString reciever = HexString.fromHashString(tokenized[1]);
-	        double value = Integer.parseInt(tokenized[2]);
+	        double value = Double.parseDouble(tokenized[2]);
 	        long createdTimestamp = Long.parseLong(tokenized[3]);
 	        
 	        String powSolution = tokenized[4];

@@ -1,5 +1,7 @@
 package newMain;
 
+import java.util.stream.Collectors;
+
 /**
  * Inserts Transactions coming from the network into the DAG bzw. Database
  */
@@ -12,7 +14,7 @@ public class TxInserter {
 		//   VALIDATE
 		boolean valid = dag.getCurrentLedger().validTransaction(transaction);
 		
-		valid = dag.getTransactionList().containsAll(transaction.getConfirmed()) && valid;
+		valid = dag.getTransactionList().containsAll(transaction.getConfirmed().stream().map(x -> x.getTransaction(dag)).collect(Collectors.toList())) && valid;  //MApping because of TransactionReference
 		
 		valid = transaction.getPowProof().validateProof() && valid;
 				

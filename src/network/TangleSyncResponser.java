@@ -10,18 +10,19 @@ import java.util.Scanner;
 
 import org.rpanic.Responser;
 
-import Main.Tangle;
-import model.TangleTransaction;
+import newMain.DAG;
+import newMain.RI;
+import newMain.Transaction;
 
 public class TangleSyncResponser implements Responser<String, Socket>{
 
-	Tangle tangle;
+	RI ri;
 	
 	public static final int requestTxSize = 200;
 	
-	public TangleSyncResponser(Tangle tangle) {
+	public TangleSyncResponser(RI ri) {
 		super();
-		this.tangle = tangle;
+		this.ri = ri;
 	}
 
 	@Override
@@ -34,7 +35,7 @@ public class TangleSyncResponser implements Responser<String, Socket>{
 		
 		System.out.println("Sync request recieved");
 		
-		List<TangleTransaction> list = tangle.getTransactions();
+		List<Transaction> list = ri.getDAG().getTransactionList();
 		
 		Collections.sort(list, (x1, x2) -> Long.compare(x1.getCreatedTimestamp(), x2.getCreatedTimestamp()));
 		
@@ -82,7 +83,7 @@ public class TangleSyncResponser implements Responser<String, Socket>{
 		
 	}
 
-	private List<List<String>> getTxStrs(List<TangleTransaction> list) {
+	private List<List<String>> getTxStrs(List<Transaction> list) {
 		
 		//TxStrs
 		
@@ -108,7 +109,7 @@ public class TangleSyncResponser implements Responser<String, Socket>{
 		
 		for(int i = 0 ; i < list.size() ; i++) {
 			
-			TangleTransaction t = list.get(i);
+			Transaction t = list.get(i);
 			
 			String serialized = serializer.serialize(t);
 			

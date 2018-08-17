@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import conf.ArgsConfigLoader;
 import conf.Configuration;
 import conf.FileConfigLoader;
+import keys.KeyStore;
 import newMain.DAG;
 import newMain.RI;
 
@@ -37,10 +38,12 @@ public class Main
         
         DAG dag = ri.getDAG();
         TangleVisualizer visualizer = new TangleVisualizer(dag);
+        log.info(KeyStore.getPublicString());
+        log.info(KeyStore.getPrivateString());
         
         Thread.sleep(5000L);
         
-        //new TangleSynchronizer(tangle, syncDistributor, entry, pool).synchronize();
+        new TangleSynchronizer(ri, ri.getShardedPool().getRandomNeighbor(), ri.getShardedPool()).synchronize();
         CommandLineWaiter.startCommandLineInput(ri, visualizer, ri.getShardedPool());
     }
 }

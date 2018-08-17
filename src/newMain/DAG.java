@@ -18,6 +18,9 @@ public class DAG implements Insertable, DAGInsertable{
 	Ledger currentLedger = new Ledger();
 	
 	public void insertTransaction(Transaction t){
+		if(transactions.containsKey(t.getTxId())){  //Wenn die Tx schon vorhanden ist
+			return;
+		}
 		transactions.put(t.getTxId(), t);
 		transactionList.add(t);
 		currentLedger.addTransaction(t);

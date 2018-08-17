@@ -1,15 +1,19 @@
 package Main;
 
 import java.net.InetAddress;
+import java.security.KeyPair;
 
 import org.rpanic.GroupedNeighborPool;
 import org.rpanic.TCPNeighbor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import Interfaces.DAGInsertable;
 import conf.ArgsConfigLoader;
 import conf.Configuration;
+import keys.KeyStore;
 import model.HexString;
+import newMain.CryptoUtil;
 import newMain.DAG;
 import newMain.RI;
 import newMain.Transaction;
@@ -18,8 +22,10 @@ import newMain.TxInserter;
 
 public class MainGenesisNode
 {
-    public static final String startReciever = "3032301006072a8648ce3d020106052b81040006031e00044bcf8446fcd64238cfa5cbb10c5c12d2d2a8a0af7831276909542e56";
-    
+    //public static final String startReciever = "3032301006072a8648ce3d020106052b81040006031e00044bcf8446fcd64238cfa5cbb10c5c12d2d2a8a0af7831276909542e56";
+	public static final String startReciever = "3032301006072a8648ce3d020106052b81040006031e00048ea17408f617101709e18abaebf773fa3f9722f3b67e6da6f357b3f6";
+	public static final String startRecieverPK = "302c020100301006072a8648ce3d020106052b8104000604153013020101040eb2868bdae8cb85caf8e8a10cca42";
+	
     private static final Logger log = LoggerFactory.getLogger(MainGenesisNode.class);
     
     public static void main(final String[] args) throws Exception {
@@ -45,7 +51,7 @@ public class MainGenesisNode
         
         log.info("Genesisnode successfully initialized");
         log.info("Seeding...");
-        genesisTranscation(ri, ri.getShardedPool(), HexString.fromHashString("3032301006072a8648ce3d020106052b81040006031e00044bcf8446fcd64238cfa5cbb10c5c12d2d2a8a0af7831276909542e56"), conf.getHexString("publickey"));
+        genesisTranscation(ri, ri.getShardedPool(), HexString.fromHashString(startReciever), conf.getHexString("publickey"));
         CommandLineWaiter.startCommandLineInput(ri, visualizer, ri.getShardedPool()); //TODO DEBUG for SPeedtest
     }
     
@@ -60,7 +66,18 @@ public class MainGenesisNode
         
     	Transaction genesis = creator.create(reciever, 100000, null);
     	genesis.sender = sender;
-        new TxInserter().insert(genesis, ri);
+    	
+    	KeyPair keypair = CryptoUtil.keypairFromStrings(startReciever, startRecieverPK);
+    	
+    	HexString signature = CryptoUtil.sign(keypair.getPrivate(), keypair.getPublic(), genesis.createHashString().getBytes());
+    	genesis.signature = signature;
+    	genesis.genesisRecalculateTxId();
+    	
+    	Transaction finalGenesis = genesis;
+    	
+    	for(DAGInsertable i : ri.getInsertables()){
+    		i.addTranscation(finalGenesis);
+    	}
         
         genesis = ri.getDAG().findTransaction(genesis.getTxId()); // Only for Testing
         directZeroTxs(ri, genesis, sender, creator);
@@ -78,7 +95,9 @@ public class MainGenesisNode
     	for (int i = 0; i < 4; ++i) {
             Transaction t = creator.create(reciever, 1, null);
             
-            inserter.insert(t, ri);
+            boolean success = inserter.insert(t, ri);
+            
+            log.info("Success" + success);
             
             try {
                 Thread.sleep(1L);

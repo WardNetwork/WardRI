@@ -4,11 +4,10 @@ import java.util.Map;
 
 import org.rpanic.GroupedNeighborPool;
 
-import Main.Tangle;
-import newMain.Transaction;
 import model.HexString;
 import model.Ledger;
 import network.ObjectSerializer;
+import newMain.Transaction;
 
 public class NetworkTangleInterface implements DAGInsertable
 {

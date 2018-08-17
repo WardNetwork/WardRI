@@ -15,7 +15,6 @@ import conf.Configuration;
 import database.DatabaseDAG;
 import keys.KeyStore;
 import model.HexString;
-import network.LedgerResponser;
 import network.TangleSyncResponser;
 
 public class RI {
@@ -85,7 +84,7 @@ public class RI {
 
         NeighborRequestReponse response = new NeighborRequestReponse(shardPool);
 		
-		//TODO response.addResponser(new TangleSyncResponser(tangle));
+		response.addResponser(new TangleSyncResponser(this));
 		response.addResponser(new TxResponder(this));
 		//TODO response.addResponser(new LedgerResponser(tangle));
 		
@@ -101,6 +100,7 @@ public class RI {
 	}
 	
 	public List<DAGInsertable> getInsertables(){
+		//TODO evtl. imutable Liste zurückgeben und addInsertable() hinzufügen
 		return tangleInterfaces;
 	}
 	

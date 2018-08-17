@@ -62,6 +62,10 @@ public class Ledger {
 		
 		d = d == null ? 0D : d;
 		
+		if(!genesisTransaction){
+			return true;
+		}
+		
 		return d >= t.getValue();
 		
 	}

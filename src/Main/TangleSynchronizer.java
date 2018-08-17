@@ -1,28 +1,26 @@
 package Main;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import org.rpanic.NeighborPool;
+import org.rpanic.GroupedNeighborPool;
 import org.rpanic.TCPNeighbor;
 
-import Interfaces.NetworkTangleInterface;
-import Interfaces.TangleInterfaceDistributor;
 import network.ObjectSerializer;
+import newMain.RI;
+import newMain.Transaction;
+import newMain.TxInserter;
 
 public class TangleSynchronizer
 {
-    Tangle tangle;
+    RI ri;
     TCPNeighbor neighbor;
-    NeighborPool pool;
-    TangleInterfaceDistributor distributor;
+    GroupedNeighborPool pool;
     
-    public TangleSynchronizer(Tangle t, TangleInterfaceDistributor distributor, TCPNeighbor neighbor, NeighborPool pool) {
-        this.tangle = t;
+    public TangleSynchronizer(RI ri, TCPNeighbor neighbor, GroupedNeighborPool pool) {
+        this.ri = ri;
         this.neighbor = neighbor;
         this.pool = pool;
-        this.distributor = distributor;
     }
     
     public boolean synchronize() {
@@ -33,22 +31,37 @@ public class TangleSynchronizer
         	
             String res = neighbor.send("reqTngl");
             
-            int txSize = 0;
+            List<Transaction> transactions = new ArrayList<>();
             
             while(!res.contains("endOfTangleSync")) {
             	
-                txSize += processResponse(res);
+                transactions.addAll(processResponse(res));
                 
                 res = neighbor.send("resTnglAck");
                 
                 System.out.println("res " + res);
                 
             }
+            
+            //TODO evtl. Transactions Distinct?
+            
+            transactions.sort((x, y) -> Long.compare(x.getCreatedTimestamp(), y.getCreatedTimestamp()));
+            
+            /* TODO necessary? 
+            long latestTx = ri.getDAG().getTransactionList().get(last);
+            
+            transactions.stream().filter(x -> x.getCreatedTimestamp() > latestTx);*/
+            
+            int success = 0;
+            
+            TxInserter inserter = new TxInserter();
+            for(Transaction t : transactions){
+        		success += inserter.insert(t, ri) ? 1 : 0;
+            }
+           
 
-            boolean validTangle = this.tangle.validateTangle();
-            System.out.println(txSize + " transactions synchronized");
-            System.out.println("Tangle synchronized. Tangle is valid: " + validTangle);
-            System.out.println("Synchronized with TPS: " + ((double)txSize)/((System.currentTimeMillis()-start)/1000D));
+            System.out.println(transactions.size() + " transactions synchronized (" + success + "/" + (transactions.size()-success + ")"));
+            System.out.println("Synchronized with TPS: " + ((double)transactions.size())/((System.currentTimeMillis()-start)/1000D));
             
             return true;
         }
@@ -56,7 +69,7 @@ public class TangleSynchronizer
         return false;
     }
     
-    public int processResponse(String response) {
+    public List<Transaction> processResponse(String response) {
     	
     	if(response.endsWith(";")) { //TODO Ordentlich machen im Send() und einheitlich
     		response = response.substring(0, response.length()-1).trim();
@@ -78,18 +91,10 @@ public class TangleSynchronizer
                 list.add(serializer.parseTransaction(txS));
             }
             
-            this.integrateIntoTangle(list);
-            return list.size();
+            return list;
         
     	}
-    	return 0;
+    	return null;
     	
-    }
-    
-    public void integrateIntoTangle(List<Transaction> list) {
-//    	this.tangle.addExistingGenesisTransaction(list.get(0));
-    	
-        list.stream()/*.skip(1)*/.forEach(t -> 
-        	distributor.addTranscation(t));    
     }
 }
