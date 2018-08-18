@@ -5,7 +5,7 @@ Warning: This Project is currently under development
 
 WardRI is is Java-built open-source Implementation fo the Ward Network as described in the <a href="https://wardnetwork.org/whitepaper">Ward Whitepaper</a>
 
-#Usage
+# Usage
 
 To run WardRI you need to have installed Java1.8+
 
