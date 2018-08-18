@@ -11,6 +11,7 @@ import org.rpanic.NeighborRequestReponse;
 import org.rpanic.TCPNeighbor;
 
 import Interfaces.DAGInsertable;
+import Interfaces.NetworkDAG;
 import conf.Configuration;
 import database.DatabaseDAG;
 import keys.KeyStore;
@@ -22,6 +23,7 @@ public class RI {
 	Configuration conf;
 	DAG dag;
 	DatabaseDAG dbdag;
+	NetworkDAG nwdag;
 	List<DAGInsertable> tangleInterfaces;
 	
 	public GroupedNeighborPool shardedPool;
@@ -38,15 +40,15 @@ public class RI {
 	
 	public void init(Configuration conf){
 		this.conf = conf;
-		
-		dag = new DAG();
-		//dbdag = new DatabaseDAG();
-		//Network Relay (Weiterleitung)
-		
-		tangleInterfaces.addAll(Arrays.asList(dag/*, dbdag*/));
 
 		initNetwork();
 		initKeys();
+		
+		dag = new DAG();
+		//dbdag = new DatabaseDAG();
+		nwdag = new NetworkDAG(shardedPool); //STEHENGEBLIEBEN AM NETWORK SHIT
+		
+		tangleInterfaces.addAll(Arrays.asList(dag, nwdag/*, dbdag*/));
 	}
 	
 	public void initKeys(){

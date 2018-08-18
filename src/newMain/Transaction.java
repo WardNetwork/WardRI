@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +125,7 @@ public class Transaction implements Hashable{
 	public String createHashString() {
 		String s = String.valueOf(this.createdTimestamp) + this.sender + this.reciever + this.value;
         
-    	for(TransactionReference h : getConfirmed()){
+    	for(TransactionReference h : getConfirmed().stream().sorted(TransactionReference.getComparator()).collect(Collectors.toList())){
     		s += h.getTxId().getHashString();
     	}
     	

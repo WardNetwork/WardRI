@@ -9,11 +9,11 @@ import model.Ledger;
 import network.ObjectSerializer;
 import newMain.Transaction;
 
-public class NetworkTangleInterface implements DAGInsertable
+public class NetworkDAG implements DAGInsertable
 {
     GroupedNeighborPool pool;
     
-    public NetworkTangleInterface(final GroupedNeighborPool pool) {
+    public NetworkDAG(final GroupedNeighborPool pool) {
         this.pool = pool;
     }
     

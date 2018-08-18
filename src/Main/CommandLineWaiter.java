@@ -47,7 +47,7 @@ public class CommandLineWaiter
                 }
             	if(s.startsWith("st")){ //Status
             		
-            		System.out.println(ri.getDAG().getTransactionList().toString());
+            		System.out.println(ri.getDAG().getTransactionList().size() + " transactions: " + ri.getDAG().getTransactionList().toString());
             		
             	}
                 else if (s.startsWith("sh")) {
@@ -83,7 +83,12 @@ public class CommandLineWaiter
                 }else if(s.startsWith("bal")) { //balance
                 	System.out.println("Balance: " + ri.getDAG().getBalance(HexString.fromHashString(s.split(" ")[1])));
                 	
+                }else if(s.startsWith("net")){
+                	
+                	System.out.println(ri.getShardedPool().list.toString());
+                	
                 }/*else if(s.startsWith("tan")) {
+                
                 	t.printOutTangleStats();
                 }*/
             }

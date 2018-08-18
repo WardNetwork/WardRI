@@ -24,7 +24,11 @@ public class TxResponder implements Responser<String, Socket>{
 
 	@Override
 	public void accept(String response, Socket socket) {
-		
+
+        if(response.startsWith("tx ")){
+        	response = response.replaceAll("tx ", "");
+        }
+        
 		String[] tokenized = response.split(" ");
         
         if(tokenized[2].startsWith("0x")){
@@ -35,7 +39,7 @@ public class TxResponder implements Responser<String, Socket>{
         
         HexString sender = HexString.fromHashString(tokenized[0]);
         HexString reciever = HexString.fromHashString(tokenized[1]);
-        double value = Integer.parseInt(tokenized[2]);
+        double value = Double.parseDouble(tokenized[2]);
         long createdTimestamp = Long.parseLong(tokenized[3]);
         
         String powSolution = tokenized[4];

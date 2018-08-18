@@ -2,6 +2,7 @@ package newMain;
 
 import java.security.KeyPair;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,7 @@ public class TransactionBuilder {
 	
 	public TransactionBuilder sign(KeyPair keypair){
 		HexString signature = CryptoUtil.sign(keypair.getPrivate(), keypair.getPublic(), createHashString().getBytes());
+		System.out.println(createHashString());
 		return setSignature(signature);
 	}
 	
@@ -91,7 +93,7 @@ public class TransactionBuilder {
 	public String createHashString(){
 		String s = String.valueOf(this.createdTimestamp) + this.sender + this.reciever + this.value;
 	    
-		for(TransactionReference h : confirmed){
+		for(TransactionReference h : confirmed.stream().sorted(TransactionReference.getComparator()).collect(Collectors.toList())){
 			s += h.getTxId().getHashString();
 		}
 		

@@ -1,5 +1,7 @@
 package newMain;
 
+import java.util.Comparator;
+
 import model.Hash;
 
 public class TransactionReference {
@@ -42,6 +44,13 @@ public class TransactionReference {
 		}
 	}
 	
-	
+    public static Comparator<TransactionReference> getComparator(){
+    	return (x, y) -> {
+			if(y == null || x == null){
+				return 0;
+			}
+			return x.getTxId().getHashString().compareTo(y.getTxId().getHashString());
+		};
+    }
 	
 }

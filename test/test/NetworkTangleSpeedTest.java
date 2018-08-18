@@ -10,7 +10,7 @@ import org.rpanic.NeighborRequestReponse;
 import org.rpanic.TCPNeighbor;
 
 import Interfaces.LocalTangleInterface;
-import Interfaces.NetworkTangleInterface;
+import Interfaces.NetworkDAG;
 import Interfaces.TangleInterfaceDistributor;
 import Main.MainGenesisNode;
 import Main.Tangle;
@@ -73,7 +73,7 @@ public class NetworkTangleSpeedTest {
 		
 		for(Transaction t : ((LocalTangleInterface)gen.getInterfaceByName(LocalTangleInterface.class.getSimpleName())).tangle.transactions.values().stream().filter(x -> x.getSender().equals("raphael") && x.getReciever().equals("test")).collect(Collectors.toList())){
 			
-			gen.getInterfaceByName(NetworkTangleInterface.class.getSimpleName()).addTranscation(t);
+			gen.getInterfaceByName(NetworkDAG.class.getSimpleName()).addTranscation(t);
 
 			Thread.sleep(3L);
 		}
@@ -134,7 +134,7 @@ public class NetworkTangleSpeedTest {
 		TangleInterfaceDistributor distr = new TangleInterfaceDistributor(tangle);
 		
 		distr.addTangleInterface(new LocalTangleInterface(tangle));
-		distr.addTangleInterface(new NetworkTangleInterface(tangle, pool));
+		distr.addTangleInterface(new NetworkDAG(tangle, pool));
 		
 		return distr;
 		
@@ -168,7 +168,7 @@ public class NetworkTangleSpeedTest {
 		TangleInterfaceDistributor distr = new TangleInterfaceDistributor(tangle);
 		
 		distr.addTangleInterface(new LocalTangleInterface(tangle));
-		distr.addTangleInterface(new NetworkTangleInterface(tangle, pool));
+		distr.addTangleInterface(new NetworkDAG(tangle, pool));
 		
 		return distr;
 		

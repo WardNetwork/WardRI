@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import newMain.Transaction;
 import newMain.TransactionReference;
@@ -44,7 +45,7 @@ public class ObjectSerializer
         
         str.add(t.getSignature().getHashString());
         
-        for (TransactionReference confirmed : t.getConfirmed()) {
+        for (TransactionReference confirmed : t.getConfirmed().stream().sorted(TransactionReference.getComparator()).collect(Collectors.toList())) {
             
             str.add(confirmed.getTxId().getHashString());
             

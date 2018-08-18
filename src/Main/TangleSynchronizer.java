@@ -35,6 +35,8 @@ public class TangleSynchronizer
             
             while(!res.contains("endOfTangleSync")) {
             	
+            	System.out.println("REsponse: " + res);
+            	
                 transactions.addAll(processResponse(res));
                 
                 res = neighbor.send("resTnglAck");
