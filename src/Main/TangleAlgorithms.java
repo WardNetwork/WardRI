@@ -114,7 +114,7 @@ public class TangleAlgorithms {
 		
 		Transaction tempTrans = iterator.next();
 		
-		for(double d = map.get(tempTrans) ; d <= totalProbability; d += map.get(tempTrans)){
+		for(double d = map.get(tempTrans) ; d <= totalProbability + map.get(tempTrans); d += map.get(tempTrans)){
 			
 			if(d >= random){
 				
