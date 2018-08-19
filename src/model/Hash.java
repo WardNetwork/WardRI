@@ -1,7 +1,5 @@
 package model;
 
-import cern.colt.Arrays;
-
 public class Hash extends HexString
 {
     public static final int BYTE_LENGTH = 32;

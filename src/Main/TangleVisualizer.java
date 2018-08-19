@@ -72,7 +72,7 @@ public class TangleVisualizer {
 		Map<String, Transaction> transIds = new HashMap<>();
 		
 		for(Transaction t : dag.getTransactionList()) {
-			transIds.put(t.DEBUGgetDEBUGId()+"", t);
+			transIds.put(t.getTxId().getHashString(), t);
 		}
 		
 		Transformer<String,Paint> vertexPaint = new Transformer<String,Paint>() {
@@ -81,16 +81,16 @@ public class TangleVisualizer {
 				 
 				 if(t == null){
 					 for(Transaction temp : dag.getTransactionList()){
-						 if(temp.DEBUGgetDEBUGId() == Integer.parseInt(i)){
+						 //if(temp.getTxId().getHashString() == Integer.parseInt(i)){
 							 transIds.put(i, temp);
 							 t = temp;
-						 }
+						 //}
 					 }
 				 }
 				 if(t == null)
 					 return Color.RED;
 				 
-				 if((t.DEBUGgetDEBUGId()+"").equals(i)) {
+				 if((t.getTxId().getHashString()+"").equals(i)) {
 					 if(t.calculateCumulativeNodeWeight() > minCumWeightForAcceptance){
 						 return Color.GREEN;
 					 }else {

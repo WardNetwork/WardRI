@@ -70,6 +70,11 @@ public class Ledger {
 		
 	}
 	
+	public boolean addChanges(Ledger changes){
+		//TODO
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
+	
 	private double doubleValue(Double d){
 		return d == null ? 0 : d;
 	}

@@ -1,41 +1,40 @@
 package snapshot;
 
-import Main.Tangle;
-import Main.Transaction;
 import model.Ledger;
-import model.TangleTransaction;
+import newMain.DAG;
+import newMain.Transaction;
 
 public class Snapshot
 {
     public Ledger state;
-    Tangle tangle;
+    DAG dag;
     public long createdTimeStamp;
     
-    public static Snapshot createSnapshot(Tangle tangle) {
+    public static Snapshot createSnapshot(DAG dag) {
     	
-        Ledger ledger = tangle.createLedger2();
+        Ledger ledger = dag.createLedger();
         
-        for (TangleTransaction t : tangle.getTips()) {
-        	ledger.addTransaction(t);
-        }
+        //for (Transaction t : dag.getTips()) {
+        	//ledger.addTransaction(t);
+        //}
         
-        Snapshot s = new Snapshot(tangle, ledger);
+        Snapshot s = new Snapshot(dag, ledger);
         
         return s;
     }
     
-    public Snapshot(Tangle tangle, Ledger state) {
+    public Snapshot(DAG dag, Ledger state) {
         this.state = state;
-        this.tangle = tangle;
+        this.dag = dag;
         this.createdTimeStamp = System.currentTimeMillis();
     }
     
-    public void reHangTips(Tangle tangle) {
+    public void reHangTips(DAG dag) {
     	
-        for (TangleTransaction t : tangle.getTips()) {
+        /*for (Transaction t : dag.getTips()) {
             t.getConfirmed().clear();
             t.getConfirmed().add(t);
-        }
+        }*/
         
     }
 }

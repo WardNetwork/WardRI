@@ -1,15 +1,14 @@
 package ns;
 
-import Main.Tangle;
-import Main.Transaction;
 import model.HexString;
+import newMain.DAG;
 
 public class Nameservice {
 
-	Tangle tangle;
+	DAG dag;
 	
-	public Nameservice(Tangle t){
-		tangle = t;
+	public Nameservice(DAG d){
+		dag = d;
 	}
 	
 	public HexString resolveDomain(String domain){

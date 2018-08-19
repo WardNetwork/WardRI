@@ -10,10 +10,16 @@ public class TransactionReference {
 	Transaction t;
 	
 	public TransactionReference(Hash hash){
+		if(hash == null){
+			throw new UnsupportedOperationException("Hash can´t be null");
+		}
 		this.hash = hash;
 	}
 	
 	public TransactionReference(Transaction t){
+		if(t == null){
+			throw new UnsupportedOperationException("Transaction can´t be null");
+		}
 		this.t = t;
 	}
 

@@ -1,7 +1,6 @@
 package model;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
 import keys.Base62;
 
@@ -92,7 +91,7 @@ public class HexString
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = 31 * result + ((this.bytes == null) ? 0 : Arrays.hashCode(this.bytes));
+        result = prime * result + ((this.bytes == null) ? 0 : Arrays.hashCode(this.bytes));
         return result;
     }
 }
