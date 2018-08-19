@@ -4,12 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import Main.MainGenesisNode;
-import Main.Tangle;
-import Main.Transaction;
-import conf.Configuration;
 import model.Hash;
-import model.HexString;
+import newMain.Transaction;
 
 public class DatastructureSpeedTest {
 
