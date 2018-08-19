@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import Interfaces.DAGInsertable;
 import conf.ArgsConfigLoader;
 import conf.Configuration;
-import keys.KeyStore;
 import model.HexString;
 import newMain.CryptoUtil;
 import newMain.DAG;
@@ -90,12 +89,12 @@ public class MainGenesisNode
     
     private static void directZeroTxs(RI ri, Transaction genesis, HexString reciever, TxCreator creator) {
 
-    	TxInserter inserter = new TxInserter();
+    	TxInserter inserter = new TxInserter(ri);
     	
     	for (int i = 0; i < 4; ++i) {
             Transaction t = creator.create(reciever, 1, null);
             
-            boolean success = inserter.insert(t, ri);
+            boolean success = inserter.insert(t);
             
             log.info("Success" + success);
             

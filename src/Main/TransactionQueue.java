@@ -6,20 +6,23 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import model.Hash;
+import newMain.Transaction;
 
 public class TransactionQueue {
 
+	//TODO Use it in Code
+	
 	HashMap<Transaction, List<Hash>> map = new HashMap<>();
 	HashMap<Transaction, List<Predicate<Transaction>>> actions = new HashMap<>();
 	
-	public void add(Transaction t, Hash conflict, Predicate<Transaction> action) {
+	public void add(Transaction t, List<Hash> conflict, Predicate<Transaction> action) {
 		
 		if(map.containsKey(t)) {
-			map.get(t).add(conflict);
+			map.get(t).addAll(conflict);
 			
 		}else{
 			List<Hash> list = new ArrayList<>();
-			list.add(conflict);
+			list.addAll(conflict);
 			map.put(t, list);
 		}
 		
@@ -37,7 +40,7 @@ public class TransactionQueue {
 			
 			conflicts = map.get(candidate);
 			int i;
-			if((i = conflicts.indexOf(t.getTxHash())) >= 0) {
+			if((i = conflicts.indexOf(t.getTxId())) >= 0) {
 				
 				if(conflicts.size() == 1) {
 					Predicate<Transaction> predicate = actions.get(candidate).get(i);
@@ -49,7 +52,7 @@ public class TransactionQueue {
 					conflicts.remove(i);
 				}
 				
-				System.out.println("Tx notified and added");
+				System.out.println("Tx resolved and added");
 				
 			}
 			

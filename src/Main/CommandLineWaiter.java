@@ -42,7 +42,7 @@ public class CommandLineWaiter
                     HexString reciever = HexString.fromString(arr[1]);
                     Transaction trans = new TxCreator(ri).create(reciever, Integer.parseInt(arr[2]), null);
                     
-                    new TxInserter().insert(trans, ri);
+                    new TxInserter(ri).insert(trans);
                     
                 }
             	if(s.startsWith("st")){ //Status
@@ -83,7 +83,7 @@ public class CommandLineWaiter
                 }else if(s.startsWith("bal")) { //balance
                 	System.out.println("Balance: " + ri.getDAG().getBalance(HexString.fromHashString(s.split(" ")[1])));
                 	
-                }else if(s.startsWith("net")){
+                }else if(s.startsWith("net") || s.startsWith("pool")){
                 	
                 	System.out.println(ri.getShardedPool().list.toString());
                 	

@@ -56,9 +56,9 @@ public class TangleSynchronizer
             
             int success = 0;
             
-            TxInserter inserter = new TxInserter();
+            TxInserter inserter = new TxInserter(ri);
             for(Transaction t : transactions){
-        		success += inserter.insert(t, ri) ? 1 : 0;
+        		success += inserter.insert(t) ? 1 : 0;
             }
            
 

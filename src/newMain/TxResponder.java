@@ -53,7 +53,7 @@ public class TxResponder implements Responser<String, Socket>{
         Transaction t = new Transaction(sender, reciever, value, null /* TODO */, createdTimestamp, powSolution, signature, confirmed);
         
         //Give it to the TxInserter
-        new TxInserter().insert(t, ri);
+        new TxInserter(ri).insert(t);
         
 	}
 

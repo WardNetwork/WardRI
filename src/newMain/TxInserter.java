@@ -1,9 +1,14 @@
 package newMain;
 
+import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import Main.TransactionQueue;
+import model.Hash;
 
 /**
  * Inserts Transactions coming from the network into the DAG bzw. Database
@@ -12,7 +17,20 @@ public class TxInserter {
 	
 	private static Logger log = LoggerFactory.getLogger(TxInserter.class); 
 	
-	public boolean insert(Transaction transaction, RI ri){
+	TransactionQueue queue = new TransactionQueue();
+	
+	Predicate<Transaction> pred;
+	
+	private RI ri;
+	
+	public TxInserter(RI _ri){
+		this.ri = _ri;
+		this.pred = (t) -> {
+			return this.insert(t);
+		};
+	}
+	
+	public boolean insert(Transaction transaction){
 		
 		DAG dag = ri.getDAG();
 		
@@ -27,7 +45,9 @@ public class TxInserter {
 		valid = dag.getTransactionList().containsAll(transaction.getConfirmed().stream().map(x -> x.getTransaction(dag)).collect(Collectors.toList())) && valid;  //MApping because of TransactionReference
 		
 		if(!valid){
-			log.debug("Confirmation Error in Tx");
+			List<Hash> conflicts = transaction.getConfirmed().stream().filter(x -> !dag.getTransactionList().contains(x.getTransaction(dag))).map(x -> x.getTxId()).collect(Collectors.toList());
+			queue.add(transaction, conflicts, pred);
+			log.debug("Confirmation Error in Tx - Added to queue (" + conflicts.size() + ")");
 			return valid;
 		}
 		
@@ -62,6 +82,8 @@ public class TxInserter {
 		//  INSERT
 		
 		ri.getInsertables().forEach(x -> x.addTranscation(transaction));
+		
+		queue.notify(transaction);
 		
 		return valid;
 		
