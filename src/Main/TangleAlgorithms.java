@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import newMain.DAG;
 import newMain.Transaction;
@@ -16,7 +15,7 @@ public class TangleAlgorithms {
 	
 	/** Number of Transactions which should be considered in the electConfimation algorithm, sorted by date
 	 */
-	public static final int numOfLatestTx = 20; //20; //TODO Dynamisch berechnen
+	public static final int numOfLatestTx = 200; //20; //TODO Dynamisch berechnen
 	public static final double timeDiffMultiplicator = 0.5d;
 	
 	public static volatile List<Transaction> latestTxs = new ArrayList<>();
@@ -95,17 +94,20 @@ public class TangleAlgorithms {
 	
 	public static Transaction electConfirmationTx2(DAG dag){  //TODO Performant machen (Mit latestTx z.B.)
 		
-		long sumTimeDiff = latestTxs.stream().mapToLong(x -> calculateTimeDiff(System.currentTimeMillis(), x)).sum();
-		
 		Map<Transaction, Double> map = new HashMap<>();
 		double totalProbability = 0D;
 		
-		for(Transaction t : latestTxs){
-			double probability = getTxSelectionProbability(System.currentTimeMillis(), t, sumTimeDiff);
+		synchronized (latestTxs) {
 			
-			map.put(t, probability);
+			long sumTimeDiff = latestTxs.stream().mapToLong(x -> calculateTimeDiff(System.currentTimeMillis(), x)).sum();
 			
-			totalProbability += probability;
+			for(Transaction t : latestTxs){
+				double probability = getTxSelectionProbability(System.currentTimeMillis(), t, sumTimeDiff);
+				
+				map.put(t, probability);
+				
+				totalProbability += probability;
+			}
 		}
 		
 		double random = new Random().nextDouble() * totalProbability;

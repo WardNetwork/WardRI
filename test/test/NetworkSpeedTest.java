@@ -52,17 +52,27 @@ public class NetworkSpeedTest {
 		
 		RI ri = ris.get(ris.size()-1);
 		
-		final int transactions = 1000;
+		final int transactions = 10000;
+		
+		List<Transaction> txs = new ArrayList<>();
 		
 		for(int i = 0 ; i < transactions ; i++){
-
+			
 	        Transaction t = new TxCreator(ri).create(HexString.fromHashString("6JsvOCaQRhQR57R2l6ycqgloRH2bZ0secRNWIdVwb2MfqUnbgNsqRTUeUz6RnXLV1vUY26"), 0d, null);
 	        
-	        new TxInserter(ri).insert(t);
+	        txs.add(t);
 	        
 	        Thread.sleep(1L);
-        
+	        
 		}
+		
+		System.err.println("Creation completed: " + (System.currentTimeMillis() - start));
+		start = System.currentTimeMillis();
+		
+		for(Transaction t : txs){
+	        new TxInserter(ri).insert(t);
+		}
+		
 		
 		System.err.println("Bandwith test end");
 		
