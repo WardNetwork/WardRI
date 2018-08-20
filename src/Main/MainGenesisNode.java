@@ -77,6 +77,7 @@ public class MainGenesisNode
     	for(DAGInsertable i : ri.getInsertables()){
     		i.addTranscation(finalGenesis);
     	}
+		TangleAlgorithms.addTransactionToCache(genesis);
         
         genesis = ri.getDAG().findTransaction(genesis.getTxId()); // Only for Testing
         directZeroTxs(ri, genesis, sender, creator);

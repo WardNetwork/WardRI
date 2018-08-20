@@ -19,7 +19,7 @@ public class TangleAlgorithms {
 	public static final int numOfLatestTx = 20; //20; //TODO Dynamisch berechnen
 	public static final double timeDiffMultiplicator = 0.5d;
 	
-	public static List<Transaction> latestTxs = new ArrayList<>();
+	public static volatile List<Transaction> latestTxs = new ArrayList<>();
 	
 	public static Transaction electConfirmationTx(DAG dag, Transaction transaction){
 		
@@ -95,12 +95,12 @@ public class TangleAlgorithms {
 	
 	public static Transaction electConfirmationTx2(DAG dag){  //TODO Performant machen (Mit latestTx z.B.)
 		
-		long sumTimeDiff = dag.getTransactionList().stream().mapToLong(x -> calculateTimeDiff(System.currentTimeMillis(), x)).sum();
+		long sumTimeDiff = latestTxs.stream().mapToLong(x -> calculateTimeDiff(System.currentTimeMillis(), x)).sum();
 		
 		Map<Transaction, Double> map = new HashMap<>();
 		double totalProbability = 0D;
 		
-		for(Transaction t : dag.getTransactionList().stream().sorted((x, y) -> Long.compare(x.getCreatedTimestamp(), y.getCreatedTimestamp())).limit(numOfLatestTx).collect(Collectors.toList())){
+		for(Transaction t : latestTxs){
 			double probability = getTxSelectionProbability(System.currentTimeMillis(), t, sumTimeDiff);
 			
 			map.put(t, probability);
@@ -130,14 +130,16 @@ public class TangleAlgorithms {
 	}
 	
 	public static void addTransactionToCache(Transaction transaction){
-		if(!latestTxs.contains(transaction) && (latestTxs.size() == 0 || transaction.getCreatedTimestamp() > latestTxs.get(0).getCreatedTimestamp())){
-			if(latestTxs.size() < numOfLatestTx + 1){
-				latestTxs.add(transaction);
-			}else{
-				latestTxs.remove(0);
-				latestTxs.add(transaction);
+		synchronized (latestTxs) {
+			if(!latestTxs.contains(transaction) && (latestTxs.size() == 0 || transaction.getCreatedTimestamp() > latestTxs.get(0).getCreatedTimestamp())){
+				if(latestTxs.size() < numOfLatestTx + 1){
+					latestTxs.add(transaction);
+				}else{
+					latestTxs.remove(0);
+					latestTxs.add(transaction);
+				}
+				Collections.sort(latestTxs, (o1, o2)-> Long.compare(o1.getCreatedTimestamp(), o2.getCreatedTimestamp()));
 			}
-			Collections.sort(latestTxs, (o1, o2)-> Long.compare(o1.getCreatedTimestamp(), o2.getCreatedTimestamp()));
 		}
 	}
 	

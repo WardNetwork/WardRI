@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import Main.TangleAlgorithms;
 import Main.TransactionQueue;
 import model.Hash;
 
@@ -84,6 +85,7 @@ public class TxInserter {
 		ri.getInsertables().forEach(x -> x.addTranscation(transaction));
 		
 		queue.notify(transaction);
+		TangleAlgorithms.addTransactionToCache(transaction);
 		
 		return valid;
 		
