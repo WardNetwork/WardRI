@@ -1,5 +1,6 @@
 package model;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,6 +90,17 @@ public class Ledger {
 	
 	public Map<HexString, Double> toMap(){
 		return new HashMap<>(ledger);
+	}
+	
+	/** For hashing and signing */
+	public byte[] toByteArray(){
+		byte[] bytes = new byte[ledger.size() * (ledger.keySet().iterator().next().getHash().length + Double.BYTES)];
+		ByteBuffer buf = ByteBuffer.wrap(bytes);
+		for(HexString key : ledger.keySet()){
+			
+		    buf.put(key.getHash()).putDouble(ledger.get(key));
+		}
+		return bytes;
 	}
 	
 	@Override

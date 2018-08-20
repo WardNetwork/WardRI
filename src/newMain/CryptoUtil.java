@@ -18,14 +18,18 @@ import model.HexString;
 public class CryptoUtil {
 
 	public static Hash hashSHA256(String object){
-    	try {
+        Hash hash = new Hash(hashSHA256(object.getBytes()));
+        return hash;
+	}
+	
+	public static byte[] hashSHA256(byte[] object){
+		try {
             
         	MessageDigest digest = MessageDigest.getInstance("SHA-256");
         	
-            digest.update(object.getBytes());
+            digest.update(object);
             byte[] arr = digest.digest();
-            Hash hash = new Hash(arr);
-            return hash;
+            return arr;
         }
         catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
