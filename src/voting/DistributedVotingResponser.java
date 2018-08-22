@@ -21,8 +21,6 @@ public class DistributedVotingResponser implements Responser<String, Socket> {
 	@Override
 	public void accept(String response, Socket socket) {
 		
-		//TODO Check if reponse actually starts with "voted"
-		
 		String[] tokens = response.split(" ");
 		//Request syntax: "voted voteCat true|false pubkey signature"
 		

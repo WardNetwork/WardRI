@@ -72,6 +72,7 @@ public class Ledger {
 	}
 	
 	public boolean addChanges(Ledger changes){
+		
 		//TODO
 		throw new UnsupportedOperationException("Not implemented yet");
 	}

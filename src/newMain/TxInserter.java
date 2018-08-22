@@ -46,7 +46,7 @@ public class TxInserter {
 		DAG dag = ri.getDAG();
 		
 		//   VALIDATE
-		boolean valid = dag.getCurrentLedger().validTransaction(transaction);
+		boolean valid = dag.createLedger().validTransaction(transaction);
 		
 		if(!valid){
 			log.debug("Tx Value not valid for sender " + transaction.getSender().getHashString());

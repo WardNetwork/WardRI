@@ -5,6 +5,7 @@ import java.net.UnknownHostException;
 import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.rpanic.ExternalAddress;
@@ -103,6 +104,7 @@ public class RI {
 		
 		response.addResponser(new TangleSyncResponser(this));
 		response.addResponser(new TxResponder(this));
+		response.addResponser(new GetResponder(this));
 		//TODO response.addResponser(new LedgerResponser(tangle));
 		
         ListenerThread.startListeningThreadTcp(selfN.getPort(), response);
@@ -113,12 +115,20 @@ public class RI {
 	}
 	
 	public void synchronizeDAGState(){
-		//TODO
+		//TODO in the Main class at the moment, better here?
 	}
 	
 	public List<DAGInsertable> getInsertables(){
-		//TODO evtl. imutable Liste zurückgeben und addInsertable() hinzufügen
-		return tangleInterfaces;
+		return Collections.unmodifiableList(tangleInterfaces);
+	}
+	
+	public boolean addInsertable(DAGInsertable insertable){
+		if(!tangleInterfaces.contains(insertable)){
+			tangleInterfaces.add(insertable);
+			return true;
+		}else{
+			return false;
+		}
 	}
 	
 	public DAG getDAG(){

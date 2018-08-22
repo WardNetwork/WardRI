@@ -9,7 +9,7 @@ import model.Hash;
 public class TransactionProof {
 
 	private Hash hash;
-	public String solution = null; //TODO private
+	private String solution = null;
 	
 	public static final String POW_CRITERIA = ""; //TODO DEV: "0000"
 	
@@ -27,17 +27,10 @@ public class TransactionProof {
 	public String getSolution() {
 		return solution;
 	}
-
-//	public static void main(String[] args) {
-//		TransactionProof bp = new TransactionProof(new Transaction("asdg", "lukas", 3).hashCodeSHA());
-//		bp.solve();
-//	}
 	
 	public void solve() {
 		
 		long timeStart = System.currentTimeMillis();
-		
-//		int iterations = 0;
 		
 		String guess;
 		String solution;
@@ -45,27 +38,17 @@ public class TransactionProof {
 		
 		do {
 		
-		randomStr = generateRandomString();
-		
-		guess = randomStr + hash;
-
-//		System.out.println(guess);
-		
-		solution = hash(guess);
-		
-//		System.out.println(guess);
-		
-//		iterations++;
+			randomStr = generateRandomString();
+			
+			guess = randomStr + hash;
+			
+			solution = hash(guess);
 		
 		}while(!solution.startsWith(POW_CRITERIA));
 		
 		long timeEnd = System.currentTimeMillis();
 		
-		//TODO DEV
 		System.out.println("Solution found, time: " + ((timeEnd-timeStart)/1000) + " seconds");
-//		System.out.println("Solution found, iterations: " + iterations + ", seconds: " + ((timeEnd-timeStart)/1000));
-//		System.out.println("Solution: " + guess);
-//		System.out.println("Hashed Result: " + solution);
 		
 		this.solution = randomStr;
 		

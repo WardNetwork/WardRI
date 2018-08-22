@@ -41,10 +41,6 @@ public class DAG implements Insertable, DAGInsertable{
 		return transactionList;
 	}
 
-	public Ledger getCurrentLedger() {
-		return currentLedger;
-	}
-
 	@Override
 	public void addTranscation(Transaction p0) {
 		insertTransaction(p0);  //TODO only because of insertable rendundancy
@@ -52,7 +48,7 @@ public class DAG implements Insertable, DAGInsertable{
 
 	@Override
 	public Ledger createLedger() {
-		return currentLedger;  //TODO same as getCurrentLedger
+		return currentLedger;
 	}
 
 	@Override

@@ -19,12 +19,6 @@ public class TxCreator {
 		this.dag = ri.getDAG();
 		this.ri = ri;
 	}
-	
-	public void issue(Transaction t){
-		
-		ri.tangleInterfaces.forEach(x -> x.addTranscation(t));
-		
-	}
 
 	public Transaction create(HexString reciever, double amount, Object data){
 		
@@ -56,7 +50,7 @@ public class TxCreator {
         Transaction temp = null;
         for (int i = 0; i < 100 && elected.size() < 2; ++i){
         	
-            temp = TangleAlgorithms.electConfirmationTx2(dag);
+            temp = TangleAlgorithms.electConfirmationTx(dag);
             
             if(elected.contains(temp)){
             	continue;

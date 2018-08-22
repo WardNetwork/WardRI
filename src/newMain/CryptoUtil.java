@@ -55,7 +55,7 @@ public class CryptoUtil {
         return null;
     }
     
-    public static boolean validateSignature(HexString signature, PublicKey publicKey, byte[] data) { //TODO integrieren
+    public static boolean validateSignature(HexString signature, PublicKey publicKey, byte[] data) {
         try {
             Signature sig = Signature.getInstance(SIGNATURE_ALGORITHM);
             sig.initVerify(publicKey);

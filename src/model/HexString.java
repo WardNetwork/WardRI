@@ -22,10 +22,6 @@ public class HexString
         for (int i = 0; i < this.bytes.length; ++i) {
             stringBuffer.append(Integer.toString((this.bytes[i] & 0xFF) + 256, 16).substring(1));
         }
-        //TODO Dev
-        if(stringBuffer.length() % 2 != 0 || stringBuffer.length() < 30) {
-        	System.out.println("ERROR");
-        }
         return stringBuffer.toString();
     }
     
@@ -49,10 +45,6 @@ public class HexString
     }
     
     public static HexString fromHashString(String s) {
-    	
-    	if(s.length() < 32) {
-    		System.out.println(s);  //TODO DEbug
-    	}
     	
     	if(s.startsWith("0x")) {
     		s = s.substring(2);

@@ -45,8 +45,6 @@ public class TangleSynchronizer
                 
             }
             
-            //TODO evtl. Transactions Distinct?
-            
             transactions.sort((x, y) -> Long.compare(x.getCreatedTimestamp(), y.getCreatedTimestamp()));
             
             /* TODO necessary? 
@@ -72,10 +70,6 @@ public class TangleSynchronizer
     }
     
     public List<Transaction> processResponse(String response) {
-    	
-    	if(response.endsWith(";")) { //TODO Ordentlich machen im Send() und einheitlich
-    		response = response.substring(0, response.length()-1).trim();
-    	}
     	
     	if (response.startsWith("resTngl ")) {
     		

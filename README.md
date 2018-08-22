@@ -47,3 +47,10 @@ Parameters can be shortened (f.e. neighbor -> n). Optional parameters are marked
 * *`publickey`: Your public key, if not given, a random keypair will be generated. The Keypair is being saved for future uses
 
 * *`privatekey`: You private key
+
+All parameters can also be read from a file. 
+Every parameter needs to be in a new Line and be written like "parameter=value".
+
+Default File-Name is "ward.conf". If you want to customize the path or name of you config file, you can use the following configuration parameter
+
+* *`file`: Path of the Config File, if you have one

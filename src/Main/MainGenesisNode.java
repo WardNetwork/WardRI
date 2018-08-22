@@ -21,8 +21,7 @@ import newMain.TxInserter;
 
 public class MainGenesisNode
 {
-    //public static final String startReciever = "3032301006072a8648ce3d020106052b81040006031e00044bcf8446fcd64238cfa5cbb10c5c12d2d2a8a0af7831276909542e56";
-	public static final String startReciever = "3032301006072a8648ce3d020106052b81040006031e00048ea17408f617101709e18abaebf773fa3f9722f3b67e6da6f357b3f6";
+    public static final String startReciever = "3032301006072a8648ce3d020106052b81040006031e00048ea17408f617101709e18abaebf773fa3f9722f3b67e6da6f357b3f6";
 	public static final String startRecieverPK = "302c020100301006072a8648ce3d020106052b8104000604153013020101040eb2868bdae8cb85caf8e8a10cca42";
 	
     private static final Logger log = LoggerFactory.getLogger(MainGenesisNode.class);
@@ -37,8 +36,6 @@ public class MainGenesisNode
         log.info("Starting GenesisNode on Port " + selfPortI);
         final TCPNeighbor selfN = new TCPNeighbor(InetAddress.getByName(conf.getString("self")));
         selfN.setPort(selfPortI);
-        
-        //Keys
         
         RI ri = new RI(true);
         ri.init(conf);
@@ -55,11 +52,6 @@ public class MainGenesisNode
     }
     
     public static void genesisTranscation(RI ri, GroupedNeighborPool pool, HexString sender, HexString reciever) {
-        //final TangleInterfaceDistributor distributor = new TangleInterfaceDistributor(tangle, new DAGInsertable[] { new LocalTangleInterface(tangle), new NetworkTangleInterface(tangle, pool) });
-        
-//    	List<TangleInterface> interfs = distributor.getInterfaces();
-//    	TangleInterface localInterf = interfs.stream().filter(x -> x.getClass().getName().equals(LocalTangleInterface.class)).collect(Collectors.toList()).get(0);
-//    	interfs.remove(localInterf);
     	
     	TxCreator creator = new TxCreator(ri);
         
@@ -75,15 +67,12 @@ public class MainGenesisNode
     	Transaction finalGenesis = genesis;
     	
     	for(DAGInsertable i : ri.getInsertables()){
-    		i.addTranscation(finalGenesis);
+    		i.addTransaction(finalGenesis);
     	}
 		TangleAlgorithms.addTransactionToCache(genesis);
-        
-        genesis = ri.getDAG().findTransaction(genesis.getTxId()); // Only for Testing
+		
         directZeroTxs(ri, genesis, sender, creator);
         //seed(tangle, distributor, sender, reciever);
-        
-//    	interfs.add(localInterf);
     	
         log.info("Seeding complete");
     }
