@@ -10,14 +10,15 @@ import model.Hash;
 import model.HexString;
 import model.Ledger;
 
-public class DAG implements Insertable, DAGInsertable{
+public class DAG implements DAGInsertable{
 	
 	Map<Hash, Transaction> transactions = new HashMap<>();
 	List<Transaction> transactionList = new ArrayList<>();
 	
 	Ledger currentLedger = new Ledger();
-	
-	public void insertTransaction(Transaction t){
+
+	@Override
+	public void addTransaction(Transaction t) {
 		if(transactions.containsKey(t.getTxId())){  //Wenn die Tx schon vorhanden ist
 			return;
 		}
@@ -40,12 +41,7 @@ public class DAG implements Insertable, DAGInsertable{
 	public List<Transaction> getTransactionList() {
 		return transactionList;
 	}
-
-	@Override
-	public void addTranscation(Transaction p0) {
-		insertTransaction(p0);  //TODO only because of insertable rendundancy
-	}
-
+	
 	@Override
 	public Ledger createLedger() {
 		return currentLedger;
