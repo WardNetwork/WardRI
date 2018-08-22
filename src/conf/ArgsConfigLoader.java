@@ -11,14 +11,14 @@ public class ArgsConfigLoader {
 		CmdLineParser parser = new CmdLineParser();
 
 		Option<String> neighbor = parser.addStringOption('n', Configuration.NEIGHBOR);
-		Option<Integer> port = parser.addIntegerOption('p', Configuration.PORT);
+		//Option<Integer> port = parser.addIntegerOption('p', Configuration.PORT);
 		Option<String> self = parser.addStringOption('s', Configuration.SELF);
 		Option<Integer> selfPort = parser.addIntegerOption(Configuration.SELFPORT);
 		Option<String> publicKey = parser.addStringOption(Configuration.PUBLICKEY);
 		Option<String> privateKey = parser.addStringOption(Configuration.PRIVATEKEY);
 		
 		
-		Option<?>[] options = new Option[]{neighbor, port, self, selfPort, publicKey, privateKey};
+		Option<?>[] options = new Option[]{neighbor, self, selfPort, publicKey, privateKey};
 		
 		try {
 			parser.parse(args);

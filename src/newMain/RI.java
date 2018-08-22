@@ -1,6 +1,7 @@
 package newMain;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,8 +77,16 @@ public class RI {
 
 		TCPNeighbor entry = null;
 		if(!isGenesis){
-			entry = new TCPNeighbor(conf.getInetAddress(Configuration.NEIGHBOR));
-	        entry.setPort(conf.getInt(Configuration.PORT));
+			String confEntry = conf.getString(Configuration.NEIGHBOR);
+			if(confEntry.contains(":")){
+				try {
+					entry = new TCPNeighbor(InetAddress.getByName(confEntry.split(":")[0]));
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+					return;
+				}
+		        entry.setPort(Integer.parseInt(confEntry.split(":")[1]));
+			}
 		}
 		
 		InetAddress selfAdd = conf.getInetAddress(Configuration.SELF);

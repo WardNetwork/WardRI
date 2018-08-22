@@ -62,7 +62,7 @@ public class Configuration {
     }
 	
 	public static final String NEIGHBOR = "neighbor";
-	public static final String PORT = "port";
+	//public static final String PORT = "port";
 	public static final String SELF = "self";
 	public static final String SELFPORT = "selfport";
 	public static final String PUBLICKEY = "publickey";
