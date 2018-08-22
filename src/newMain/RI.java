@@ -1,10 +1,12 @@
 package newMain;
 
+import java.net.InetAddress;
 import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.rpanic.ExternalAddress;
 import org.rpanic.GroupedNeighborPool;
 import org.rpanic.ListenerThread;
 import org.rpanic.NeighborRequestReponse;
@@ -78,6 +80,10 @@ public class RI {
 	        entry.setPort(conf.getInt(Configuration.PORT));
 		}
 		
+		InetAddress selfAdd = conf.getInetAddress(Configuration.SELF);
+		if(selfAdd == null){
+			selfAdd = ExternalAddress.getExternalAddress();
+		}
         TCPNeighbor selfN = new TCPNeighbor(conf.getInetAddress(Configuration.SELF));
         selfN.setPort(conf.getInt(Configuration.SELFPORT));
         
