@@ -18,9 +18,10 @@ public class TxInserter {
 	
 	private static Logger log = LoggerFactory.getLogger(TxInserter.class); 
 	
-	TransactionQueue queue = new TransactionQueue();
+	TransactionQueue queue;
 	
 	Predicate<Transaction> pred;
+	Predicate<Hash> retrieve;
 	
 	private RI ri;
 	
@@ -29,6 +30,15 @@ public class TxInserter {
 		this.pred = (t) -> {
 			return this.insert(t);
 		};
+		this.retrieve = (h) -> {
+			Transaction t = new NetworkObjectGetter().resolveTransaction(h, _ri);
+			if(t != null){
+				return this.insert(t);
+			}else{
+				return false;
+			}
+		};
+		queue = new TransactionQueue(pred, retrieve);
 	}
 	
 	public boolean insert(Transaction transaction){
@@ -47,7 +57,7 @@ public class TxInserter {
 		
 		if(!valid){
 			List<Hash> conflicts = transaction.getConfirmed().stream().filter(x -> !dag.getTransactionList().contains(x.getTransaction(dag))).map(x -> x.getTxId()).collect(Collectors.toList());
-			queue.add(transaction, conflicts, pred);
+			queue.add(transaction, conflicts);
 			log.debug("Confirmation Error in Tx - Added to queue (" + conflicts.size() + ")");
 			return valid;
 		}
@@ -63,6 +73,14 @@ public class TxInserter {
 		
 		if(!valid){
 			log.debug("Tx has been created in the future!");
+			return valid;
+		}
+		
+		//Check if the Transaction is younger than the Confirmations
+		valid = transaction.getConfirmed().stream().allMatch(x -> transaction.getCreatedTimestamp() > x.getTransaction(dag).getCreatedTimestamp()) && valid;
+		
+		if(!valid){
+			log.debug("Tx is younger than the ones it confirmes");
 			return valid;
 		}
 		
