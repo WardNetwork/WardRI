@@ -67,5 +67,6 @@ public class Configuration {
 	public static final String SELFPORT = "selfport";
 	public static final String PUBLICKEY = "publickey";
 	public static final String PRIVATEKEY = "privatekey";
+	public static final String CONFIGFILE = "file";
 	
 }

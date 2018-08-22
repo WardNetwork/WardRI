@@ -14,7 +14,7 @@ import newMain.RI;
 
 public class Main
 {
-    public static final String DEFAULT_CONF_FILE = "panicoin.conf";
+    public static final String DEFAULT_CONF_FILE = "ward.conf";
     
     private static final Logger log = LoggerFactory.getLogger(MainGenesisNode.class);
     
@@ -24,7 +24,7 @@ public class Main
         
         new ArgsConfigLoader().loadArgsInConfig(args, conf);
         
-        String confFilePath = conf.getString("configFile");
+        String confFilePath = conf.getString(Configuration.CONFIGFILE);
         if (confFilePath == null && new File(DEFAULT_CONF_FILE).exists()) {
             confFilePath = DEFAULT_CONF_FILE;
         }

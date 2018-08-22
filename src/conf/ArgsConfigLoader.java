@@ -16,9 +16,10 @@ public class ArgsConfigLoader {
 		Option<Integer> selfPort = parser.addIntegerOption(Configuration.SELFPORT);
 		Option<String> publicKey = parser.addStringOption(Configuration.PUBLICKEY);
 		Option<String> privateKey = parser.addStringOption(Configuration.PRIVATEKEY);
+		Option<String> conffile = parser.addStringOption(Configuration.CONFIGFILE);
 		
 		
-		Option<?>[] options = new Option[]{neighbor, self, selfPort, publicKey, privateKey};
+		Option<?>[] options = new Option[]{neighbor, self, selfPort, publicKey, privateKey, conffile};
 		
 		try {
 			parser.parse(args);
