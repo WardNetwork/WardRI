@@ -18,7 +18,7 @@ public class NetworkDAG implements DAGInsertable
     }
     
     @Override
-    public synchronized void addTranscation(final Transaction t) {
+    public synchronized void addTransaction(final Transaction t) {
         String request = new ObjectSerializer().serialize(t);
         request = "tx " + request;
         this.pool.broadcast(request);

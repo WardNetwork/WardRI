@@ -100,7 +100,7 @@ public class TxInserter {
 		
 		//  INSERT
 		
-		ri.getInsertables().forEach(x -> x.addTranscation(transaction));
+		ri.getInsertables().forEach(x -> x.addTransaction(transaction));
 		
 		queue.notify(transaction);
 		TangleAlgorithms.addTransactionToCache(transaction);

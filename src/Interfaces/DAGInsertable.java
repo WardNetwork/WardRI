@@ -1,14 +1,12 @@
 package Interfaces;
 
-import java.util.Map;
-
-import newMain.Transaction;
 import model.HexString;
 import model.Ledger;
+import newMain.Transaction;
 
 public interface DAGInsertable
 {
-    void addTranscation(final Transaction p0);  //TODO Spelling mistake
+    void addTransaction(final Transaction p0);
     
     Ledger createLedger();
     

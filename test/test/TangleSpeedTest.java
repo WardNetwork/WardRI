@@ -58,7 +58,7 @@ public class TangleSpeedTest {
 
 		for(int i = 0 ; i < transactionsCount ; i++){
 			
-			distributor.addTranscation(new Transaction(sender, reciever, 1));
+			distributor.addTransaction(new Transaction(sender, reciever, 1));
 			
 			if(i % 100 == 0){
 				System.err.println("Tick");

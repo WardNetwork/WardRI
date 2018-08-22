@@ -14,7 +14,7 @@ public class VisualizerTangleInterface implements DAGInsertable
     }
     
     @Override
-    public void addTranscation(final Transaction t) {
+    public void addTransaction(final Transaction t) {
         this.visualizer.addTransaction(t);
     }
     
