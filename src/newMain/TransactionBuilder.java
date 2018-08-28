@@ -57,8 +57,11 @@ public class TransactionBuilder {
 	}
 	
 	public TransactionBuilder sign(KeyPair keypair){
-		HexString signature = CryptoUtil.sign(keypair.getPrivate(), keypair.getPublic(), createHashString().getBytes());
-		System.out.println(createHashString());
+		
+		Hash txId = CryptoUtil.hashSHA256(createHashString());
+		
+		HexString signature = CryptoUtil.sign(keypair.getPrivate(), keypair.getPublic(), txId.getHash());
+		
 		return setSignature(signature);
 	}
 	

@@ -33,8 +33,10 @@ public class TxInserter {
 		this.retrieve = (h) -> {
 			Transaction t = new NetworkObjectGetter().resolveTransaction(h, _ri);
 			if(t != null){
+				System.out.println("resolve tried - succeed");
 				return this.insert(t);
 			}else{
+				System.out.println("resolve tried - failed");
 				return false;
 			}
 		};
@@ -84,7 +86,7 @@ public class TxInserter {
 			return valid;
 		}
 		
-		valid = CryptoUtil.validateSignature(transaction.getSignature(), CryptoUtil.publicKeyFromString(transaction.getSender().getHashString()), transaction.createHashString().getBytes()) && valid;
+		valid = CryptoUtil.validateSignature(transaction.getSignature(), CryptoUtil.publicKeyFromString(transaction.getSender().getHashString()), transaction.getTxId().getHash()) && valid;
 		
 		if(!valid){
 			System.out.println(transaction.createHashString());
