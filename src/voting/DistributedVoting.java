@@ -19,7 +19,7 @@ public class DistributedVoting {
 		
 		this.id = id;
 		
-		Map<HexString, List<Transaction>> map = dag.getTransactionList().stream()
+		/*Map<HexString, List<Transaction>> map = dag.getTransactionList().stream()
 				.collect(Collectors.groupingBy(Transaction::getSender));
 		
 		for(List<Transaction> values : map.values()){
@@ -30,7 +30,7 @@ public class DistributedVoting {
 		
 		if(totalWeight == 0d){
 			throw new IllegalArgumentException("Tangle epoch has no Transactions");
-		}
+		}*/
 		
 	}
 	
@@ -38,24 +38,26 @@ public class DistributedVoting {
 		list.add(vote);
 	}
 	
-	public DistributedVotingManager.Status validateVoting(){
+	public DistributedVotingManager.Status validateVoting(DistributedVotingValidator val){
 		
-		if(totalWeight < votingPower(true) * 2d){
+		return val.validateVoting(list);
+		
+		/*if(totalWeight < votingPower(true) * 2d){
 			return Status.ACCEPTED;
 		}else if(totalWeight > votingPower(false) * 2d){
 			return Status.DECLINED;
 		}
-		return Status.RUNNING;
+		return Status.RUNNING;*/
 		
 	}
 	
-	private double votingPower(boolean vote){
+	/*private double votingPower(boolean vote){
 		return list.stream()
 				.filter(x -> x.vote == vote)
 				.mapToDouble(DistributedVote::getVoteWeight)
 				.reduce((x, y) -> x + y)
 				.getAsDouble();
-	}
+	}*/
 	
 	public static double getVotingWeight(List<Transaction> list){
 		
@@ -67,6 +69,14 @@ public class DistributedVoting {
 		//
 		
 		return Math.log(temp);
+		
+	}
+	
+	public interface DistributedVotingValidator{
+		
+		public Status validateVoting(List<DistributedVote> list);
+		
+		public double getWeight(DistributedVote vote);
 		
 	}
 	

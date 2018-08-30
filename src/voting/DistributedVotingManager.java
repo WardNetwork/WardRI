@@ -8,56 +8,90 @@ import java.util.Optional;
 
 import newMain.DAG;
 import voting.DistributedVoting.DistributedVote;
+import voting.DistributedVoting.DistributedVotingValidator;
 
 public class DistributedVotingManager {
 
-	private final List<DistributedVoting> runningVotes = new ArrayList<>();
-	private Map<String, Status> closedVotes = new HashMap<>();
+	private final List<DistributedVoteSubject> runningVotes = new ArrayList<>();
+	private Map<String, Map<String, Status>> closedVotes = new HashMap<>();
 	private DAG dag = null;
+	private List<VotingListener> listeners = new ArrayList<>(2);
 	
-	public void addVote(String voteCat, DistributedVote vote){
+	public void addVote(String voteSubject, String voteCat, DistributedVote vote){
 		
-		DistributedVoting voting = null;
-		if(runningVotes.stream().anyMatch(x -> x.id.equals(voteCat))){
-			Optional<DistributedVoting> optional = runningVotes.stream().filter(x -> x.id.equals(voteCat)).findFirst();
+		DistributedVoteSubject subject = null;
+		if(runningVotes.stream().anyMatch(x -> x.getSubject().equals(voteSubject))){
+			Optional<DistributedVoteSubject> optional = runningVotes.stream().filter(x -> x.getSubject().equals(voteSubject)).findFirst();
 			if(optional.isPresent()){
-				voting = optional.get();
+				subject = optional.get();
 			}
 		}else{
 			if(!closedVotes.containsKey(voteCat)){
-				voting = new DistributedVoting(voteCat, dag);
-				runningVotes.add(voting);
+				subject = new DistributedVoteSubject(voteSubject);
+				runningVotes.add(subject);
 			}
 		}
-		voting.addVote(vote);
+		if(subject != null){
+			subject.addVote(voteCat, vote);
+			for(VotingListener listener : listeners){
+				listener.onVote(subject, voteCat, vote);
+			}
+		} //else: vote already expired
 		
 	}
 	
-	public Status getStatus(String voteCat){
+	public Status getStatus(String subject, String voteCat, DistributedVotingValidator validator){
 		
-		Optional<DistributedVoting> optional = runningVotes.stream().filter(x -> x.id.equals(voteCat)).findFirst();
+		Optional<DistributedVoteSubject> optional = runningVotes.stream().filter(x -> x.getSubject().equals(subject)).findFirst();
 		if(optional.isPresent()){
-			return optional.get().validateVoting();
+			DistributedVoting voting = optional.get().getVoting(voteCat);
+			if(voting != null){
+				return voting.validateVoting(validator);
+			}else{
+				return statusOfClosed(subject, voteCat);
+			}
 		}else if(closedVotes.containsKey(voteCat)){
-			return closedVotes.get(voteCat);
+			return statusOfClosed(subject, voteCat);
 		}
-		return null;
+		return Status.UNDEFINED;
 	}
 	
-	public DistributedVoting getVoting(String voteCat){
-		return runningVotes.stream().filter(x -> x.id.equals(voteCat)).findFirst().get();
+	private Status statusOfClosed(String subject, String voteCat){
+		
+		if(closedVotes.keySet().contains(subject)){
+			if(closedVotes.get(subject).containsKey(voteCat)){
+				return closedVotes.get(subject).get(voteCat);
+			}
+		}
+		return Status.UNDEFINED;
+	}
+	
+	public void closeVote(String subject, String voteCat){
+		
+		//TODO implement
+		
+	}
+	
+	public DistributedVoteSubject getVoteSubject(String voteSubject){
+		return runningVotes.stream().filter(x -> x.getSubject().equals(voteSubject)).findFirst().orElse(null);
 	}
 	
 	public static enum Status{
-		RUNNING, ACCEPTED, DECLINED
+		RUNNING, ACCEPTED, DECLINED, UNDEFINED
 	}
 	
-	private static DistributedVotingManager instance = new DistributedVotingManager();
-	public static DistributedVotingManager getInstance(DAG tangle){
-		if(instance.dag == null && tangle != null){
-			instance.dag = tangle;
+	public DistributedVotingManager(DAG dag){
+		this.dag = dag;
+	}
+	
+	public void addListener(VotingListener listener){
+		if(!listeners.contains(listener)){
+			listeners.add(listener);
 		}
-		return instance;
+	}
+	
+	interface VotingListener{
+		public void onVote(DistributedVoteSubject subject, String voteCat, DistributedVote vote);
 	}
 	
 }

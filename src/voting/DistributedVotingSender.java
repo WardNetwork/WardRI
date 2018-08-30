@@ -7,8 +7,9 @@ import newMain.CryptoUtil;
 import newMain.DAG;
 import newMain.RI;
 import voting.DistributedVoting.DistributedVote;
+import voting.DistributedVotingManager.VotingListener;
 
-public class DistributedVotingSender {
+public class DistributedVotingSender implements VotingListener{
 	
 	GroupedNeighborPool pool;
 	HexString pubKey;
@@ -24,19 +25,17 @@ public class DistributedVotingSender {
 	
 	/** voteCat = hash(ledgerChanges)
 	 */
-	public void voteFor(String voteCat, boolean vote) {
+	public void sendVoteFor(DistributedVoteSubject subject, String voteCat, boolean vote) {
 		
-		String request = buildRequest(voteCat, vote);
+		String request = buildRequest(subject, voteCat, vote);
 		
 		pool.broadcast(request);
 		
-		DistributedVotingManager.getInstance(dag).addVote(voteCat, new DistributedVote(pubKey, dag, vote));
-		
 	}
 	
-	public String buildRequest(String voteCat, boolean vote){
+	public String buildRequest(DistributedVoteSubject subject, String voteCat, boolean vote){
 		
-		String req = "voted " + voteCat + " " + vote;
+		String req = "voted " + subject + " " + voteCat + " " + vote;
 
 		String signatureData = req;
 		
@@ -46,5 +45,16 @@ public class DistributedVotingSender {
 		
 		return req;
 	}
+
+	@Override
+	public void onVote(DistributedVoteSubject subject, String voteCat, DistributedVote vote) {
+		
+		if(vote.pubKey.equals(pubKey)){
+			
+			sendVoteFor(subject, voteCat, vote.vote);
+			
+		}
+	}
+
 	
 }
