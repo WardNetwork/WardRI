@@ -2,6 +2,8 @@ package model;
 
 import java.util.Arrays;
 
+import org.pmw.tinylog.Logger;
+
 import keys.Base62;
 
 public class HexString
@@ -46,6 +48,10 @@ public class HexString
     
     public static HexString fromHashString(String s) {
     	
+    	if(!isHexString(s)) {
+    		Logger.error(s + " is not a Hexadecimal String!");
+    	}
+    	
     	if(s.startsWith("0x")) {
     		s = s.substring(2);
     	}
@@ -76,7 +82,10 @@ public class HexString
     }
     
     public static boolean isHexString(String s) {
-    	return s.startsWith("0x");
+    	if(s.startsWith("0x")) {
+    		s = s.replace("0x", "");
+    	}
+    	return s.chars().allMatch(x -> Character.isDigit(x) || ('a' <= x && x <= 'f')); 
     }
     
     @Override
@@ -86,4 +95,17 @@ public class HexString
         result = prime * result + ((this.bytes == null) ? 0 : Arrays.hashCode(this.bytes));
         return result;
     }
+    
+	public static int compare(HexString o1, HexString o2) {
+		if(o1.getHash().length != o2.getHash().length){
+			return Integer.compare(o1.getHash().length, o2.getHash().length);
+		}
+		for(int i = 0 ; i < o1.getHash().length ; i++){
+			int c = Byte.compare(o1.getHash()[i], o2.getHash()[i]);
+			if(c != 0){
+				return c;
+			}
+		}
+		return 0;
+	}
 }
