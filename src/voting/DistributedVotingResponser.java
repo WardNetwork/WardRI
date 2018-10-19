@@ -13,8 +13,14 @@ public class DistributedVotingResponser implements Responser<String, Socket> {
 
 	DAG dag;
 	
-	DistributedVotingManager manager = new DistributedVotingManager(dag);
+	DistributedVotingManager manager;
 	
+	public DistributedVotingResponser(DAG dag, DistributedVotingManager manager) {
+		super();
+		this.dag = dag;
+		this.manager = manager;
+	}
+
 	@Override
 	public boolean acceptable(String responseType) {
 		return responseType.equals("voted");
@@ -33,7 +39,7 @@ public class DistributedVotingResponser implements Responser<String, Socket> {
 		boolean valid = CryptoUtil.validateSignature(signature, CryptoUtil.publicKeyFromString(pubKey), signatureData.getBytes());
 			
 		if(valid){
-			DistributedVote vote = new DistributedVote(HexString.fromHashString(pubKey), dag, Boolean.parseBoolean(tokens[3]));
+			DistributedVote vote = new DistributedVote(HexString.fromHashString(pubKey), Boolean.parseBoolean(tokens[3]));
 			manager.addVote(tokens[1], tokens[2], vote);
 		}
 		

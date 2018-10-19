@@ -1,36 +1,50 @@
 package voting;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import model.HexString;
-import newMain.DAG;
-import newMain.Transaction;
 import voting.DistributedVotingManager.Status;
+import voting.DistributedVotingManager.VotingWeighter;
 
 public class DistributedVoting {
 	
 	String id;
 	List<DistributedVote> list;
-	double totalWeight;
+	Map<HexString, Double> weights;
+	double totalWeight = 0D;
 	
-	public DistributedVoting(String id, DAG dag){
+	public DistributedVoting(String id, VotingWeighter weighter){
 		
 		this.id = id;
 		
-		/*Map<HexString, List<Transaction>> map = dag.getTransactionList().stream()
-				.collect(Collectors.groupingBy(Transaction::getSender));
+		Map<HexString, Double> weights = weighter.getVotingWeights();
 		
-		for(List<Transaction> values : map.values()){
-			
-			totalWeight += getVotingWeight(values);
-			
-		}
+		this.weights = weights;
+		
+		totalWeight = weights.values().stream().mapToDouble(x -> x).sum();
 		
 		if(totalWeight == 0d){
-			throw new IllegalArgumentException("Tangle epoch has no Transactions");
-		}*/
+			this.weights = findNextVoteData(weighter);
+			totalWeight = weights.values().stream().mapToDouble(x -> x).sum();
+		}
+
+		list = new ArrayList<>();
+		
+	}
+	
+	private Map<HexString, Double> findNextVoteData(VotingWeighter previous){
+		
+		int newEpoch = previous.getEpoch() - 1;
+		VotingWeighter clone = previous.getClone(newEpoch);
+		Map<HexString, Double> w = clone.getVotingWeights();
+		if(!w.isEmpty()){
+			return w;
+		}else{
+			return findNextVoteData(clone);
+		}
 		
 	}
 	
@@ -40,14 +54,19 @@ public class DistributedVoting {
 	
 	public DistributedVotingManager.Status validateVoting(DistributedVotingValidator val){
 		
-		return val.validateVoting(list);
+		List<Double> positive = weights
+				.entrySet().stream()
+				.filter(x -> list.stream().anyMatch(y -> y.getVote() && y.pubKey.equals(x.getKey())))
+				.map(x -> x.getValue())
+				.collect(Collectors.toList());
 		
-		/*if(totalWeight < votingPower(true) * 2d){
-			return Status.ACCEPTED;
-		}else if(totalWeight > votingPower(false) * 2d){
-			return Status.DECLINED;
-		}
-		return Status.RUNNING;*/
+		List<Double> negative = weights
+				.entrySet().stream()
+				.filter(x -> list.stream().anyMatch(y -> !y.getVote() && y.pubKey.equals(x.getKey())))
+				.map(x -> x.getValue())
+				.collect(Collectors.toList());
+		
+		return val.validateVoting(positive, negative, totalWeight);
 		
 	}
 	
@@ -59,7 +78,7 @@ public class DistributedVoting {
 				.getAsDouble();
 	}*/
 	
-	public static double getVotingWeight(List<Transaction> list){
+	/*public static double getVotingWeight(List<Transaction> list){
 		
 		double temp = list.stream().mapToDouble(Transaction::getNodePowWeight)
 				.reduce((x, y) -> x + y)
@@ -70,20 +89,18 @@ public class DistributedVoting {
 		
 		return Math.log(temp);
 		
-	}
+	}*/
 	
 	public interface DistributedVotingValidator{
 		
-		public Status validateVoting(List<DistributedVote> list);
-		
-		public double getWeight(DistributedVote vote);
+		public Status validateVoting(List<Double> positive, List<Double> negative, double totalWeight);
 		
 	}
 	
 	public static class DistributedVote{
 		
 		HexString pubKey;
-		double voteWeight;
+		double voteWeight = -1D;
 		boolean vote;
 		
 		//TODO signature?
@@ -93,23 +110,23 @@ public class DistributedVoting {
 			this.vote = vote;
 		}
 		
-		public DistributedVote(HexString pubKey, DAG dag, boolean vote){
-			double totalweight = DistributedVoting.getVotingWeight(
-				dag.getTransactionList()
-				.stream()
-				.filter(tx -> tx.getSender().equals(pubKey))
-				.collect(Collectors.toList())
-			);
+		public DistributedVote(HexString pubKey, boolean vote){
 			
 			this.pubKey = pubKey;
-			this.voteWeight = totalweight;
 			this.vote = vote;
 		}
 		
 		public double getVoteWeight(){
+			if(voteWeight == -1D){
+				voteWeight = calculateVoteWeight();
+			}
 			return voteWeight;
 		}
 		
+		private double calculateVoteWeight() {
+			throw new UnsupportedOperationException();
+		}
+
 		public boolean getVote(){
 			return vote;
 		}

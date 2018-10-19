@@ -7,9 +7,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import newMain.DAG;
+import newMain.GenericDAG;
 import newMain.Transaction;
+import sharded.DAGObject;
 
 public class TangleAlgorithms {
 	
@@ -50,9 +53,39 @@ public class TangleAlgorithms {
 				
 				return tempTrans;
 			}
+			tempTrans = iterator.next();
+		}
+		return null;
+	}
+	
+	public static <E extends DAGObject<E>> E electShardedConfirmationTx(GenericDAG<E> dag){
+		
+		Map<E, Double> map = new HashMap<>();
+		double totalProbability = 0D;
+		
+		List<E> limited = dag.getTransactionList().stream().limit(100).collect(Collectors.toList());
 			
-			if(!iterator.hasNext()){
-				System.out.println("asd");
+		long sumTimeDiff = limited.stream().mapToLong(x -> calculateTimeDiff(System.currentTimeMillis(), x)).sum();
+		
+		for(E t : limited){
+			double probability = getTxSelectionProbability(System.currentTimeMillis(), t, sumTimeDiff);
+			
+			map.put(t, probability);
+			
+			totalProbability += probability;
+		}
+		
+		double random = new Random().nextDouble() * totalProbability;
+		
+		Iterator<E> iterator = map.keySet().iterator();
+		
+		E tempTrans = iterator.next();
+		
+		for(double d = map.get(tempTrans) ; d <= totalProbability + map.get(tempTrans); d += map.get(tempTrans)){
+			
+			if(d >= random){
+				
+				return tempTrans;
 			}
 			tempTrans = iterator.next();
 		}
@@ -79,11 +112,11 @@ public class TangleAlgorithms {
 		
 	}
 	
-	public static long calculateTimeDiff(long t1, Transaction t2){
+	public static long calculateTimeDiff(long t1, DAGObject<?> t2){
 		return t1 - t2.getCreatedTimestamp();
 	}
 	
-	public static double getTxSelectionProbability(long now, Transaction candidate, long sumTimeDiff){
+	public static double getTxSelectionProbability(long now, DAGObject<?> candidate, long sumTimeDiff){
 		
 //		if(candidate.nodesWhichConfirmedMe.size() <= 1) {
 //			System.err.println();

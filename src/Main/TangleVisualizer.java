@@ -3,8 +3,12 @@ package Main;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Paint;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.swing.JFrame;
 
@@ -17,35 +21,46 @@ import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import model.Hash;
-import newMain.DAG;
-import newMain.Transaction;
-import newMain.TransactionReference;
+import newMain.DAGObjectReference;
+import sharded.DAGObject;
 
-public class TangleVisualizer {
+public class TangleVisualizer<E extends DAGObject<E>> {
 
-	DAG dag;
+	List<E> list;
 	Layout<String, String> layout;
 	BasicVisualizationServer<String,String> vv;
 	public int minCumWeightForAcceptance = 2000;
 	
-	public TangleVisualizer(DAG dag){
+	Map<E, Integer> map = new HashMap<>();
+	
+	public TangleVisualizer(List<E> list){
 		
-		this.dag = dag;
+		this.list = list;
 		
 	}
 	
-	public void addEdge(Transaction t1, Hash t2) {
+	public void addEdge(E t1, Hash t2) {
 		
 		//layout.getGraph().addEdge(t1.DEBUGgetDEBUGId()+""+t2.DEBUGgetDEBUGId(), t1.DEBUGgetDEBUGId()+"", t2.DEBUGgetDEBUGId()+"");
-		layout.getGraph().addEdge(t1.getTxId().getHashString()+""+t2.getHashString(), t1.getTxId()+"", t2.getHashString() +"");
-		if(vv.isShowing())
+		int tnum = map.get(t1);
+		int t2num = map.get(get(t2));
+		layout.getGraph().addEdge(tnum + " " + t2num, ""+tnum, ""+t2num, EdgeType.DIRECTED);
+		if(vv.isShowing()) {
+			vv.repaint();
 			vv.updateUI();
+		}
 		
 	}
 	
-	public void addTransaction(Transaction t){
+	private E get(Hash h) {
+		return list.stream().filter(x -> x.getTxId().equals(h)).findFirst().orElse(null);
+	}
+	
+	public void addTransaction(E t){
 		
-		for(TransactionReference child : t.getConfirmed()){
+		map.put(t, map.values().stream().max((x, y) -> Integer.compare(x, y)).orElse(0) + 1);
+		
+		for(DAGObjectReference<E> child : t.getConfirmed()){
 			addEdge(t, child.getTxId());
 		}
 		
@@ -53,15 +68,33 @@ public class TangleVisualizer {
 
 	public void visualize(){
 		
+		if(list.size() == 0) {
+			return;
+		}
+		
 		DirectedSparseMultigraph<String, String> g = new DirectedSparseMultigraph<>();
 		
 		System.out.println("Started parsing the edges...");
 		
-		for(Transaction t : dag.getTransactionList()){
+		int count = 0;
+		
+		List<E> ordered = list.stream()
+		.sorted((x, y) -> Long.compare(x.getCreatedTimestamp(), y.getCreatedTimestamp()))
+		.collect(Collectors.toList());
+		
+		for(E t : ordered){
+			map.put(t, ++count);
+		}
+		
+		for(E t : list){
 			
-			for(TransactionReference t2 : t.getConfirmed()){
+			int tnum = map.get(t);
+			
+			for(DAGObjectReference<E> t2 : t.getConfirmed()){
 				
-				//TODO g.addEdge(t.DEBUGgetDEBUGId()+""+t2.DEBUGgetDEBUGId(), ""+t.DEBUGgetDEBUGId(), ""+t2.DEBUGgetDEBUGId(), EdgeType.DIRECTED);
+				int t2num = map.get(get(t2.getTxId()));
+				
+				g.addEdge(tnum + " " + t2num, ""+tnum, ""+t2num, EdgeType.DIRECTED);
 				
 			}
 			
@@ -69,18 +102,18 @@ public class TangleVisualizer {
 		
 		System.out.println("Edges finished, starting rendering");
 		
-		Map<String, Transaction> transIds = new HashMap<>();
+		Map<String, E> transIds = new HashMap<>();
 		
-		for(Transaction t : dag.getTransactionList()) {
+		for(E t : list) {
 			transIds.put(t.getTxId().getHashString(), t);
 		}
 		
 		Transformer<String,Paint> vertexPaint = new Transformer<String,Paint>() {
 			 public Paint transform(String i) {
-				 Transaction t = transIds.get(i);
+				 E t = transIds.get(i);
 				 
 				 if(t == null){
-					 for(Transaction temp : dag.getTransactionList()){
+					 for(E temp : list){
 						 //if(temp.getTxId().getHashString() == Integer.parseInt(i)){
 							 transIds.put(i, temp);
 							 t = temp;
@@ -91,7 +124,7 @@ public class TangleVisualizer {
 					 return Color.RED;
 				 
 				 if((t.getTxId().getHashString()+"").equals(i)) {
-					 if(t.calculateCumulativeNodeWeight() > minCumWeightForAcceptance){
+					 if(0 /*t.cumW*/ > minCumWeightForAcceptance){
 						 return Color.GREEN;
 					 }else {
 						 return Color.RED;
@@ -102,12 +135,17 @@ public class TangleVisualizer {
 			 }
 		 }; 
 		
-//		Layout<String, String> layout = new DAGLayout<String, String>(g);
-		layout = new ISOMLayout<String, String>(g);
+	//	 Layout<String, String> layout = new DAGLayout<String, String>(g);
+		 layout = new ISOMLayout<String, String>(g);
 		 layout.setSize(new Dimension(1200,800)); // sets the initial size of the spacec
 		 // The BasicVisualizationServer<V,E> is parameterized by the edge types
-		 vv = new BasicVisualizationServer<String,String>(layout);
-		 vv.setPreferredSize(new Dimension(1200,800)); //Sets the viewing area size
+		 try {
+			 vv = new BasicVisualizationServer<String,String>(layout);
+			 vv.setPreferredSize(new Dimension(1200,800)); //Sets the viewing area size
+		 }catch(Exception e) {
+			 e.printStackTrace();
+			 return;
+		 }
 		 	
 		 vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
 		 vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<String>());
@@ -117,6 +155,28 @@ public class TangleVisualizer {
 		 frame.getContentPane().add(vv);
 		 frame.pack();
 		 frame.setVisible(true); 
+		 
+		 frame.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
+				
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_R) {
+					ISOMLayout<String, String> l = new ISOMLayout<>(layout.getGraph());
+					vv.setGraphLayout(l);
+					vv.repaint();
+				}
+			}
+		});
 		
 	}
 	

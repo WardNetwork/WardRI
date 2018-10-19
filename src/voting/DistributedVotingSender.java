@@ -47,7 +47,7 @@ public class DistributedVotingSender implements VotingListener{
 	}
 
 	@Override
-	public void onVote(DistributedVoteSubject subject, String voteCat, DistributedVote vote) {
+	public void onVote(DistributedVoteSubject subject, String voteCat, DistributedVote vote, boolean newVote) {
 		
 		if(vote.pubKey.equals(pubKey)){
 			

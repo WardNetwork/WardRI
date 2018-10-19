@@ -1,40 +1,49 @@
-package voting;
+package voting; 
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import newMain.DAG;
+import model.HexString;
 import voting.DistributedVoting.DistributedVote;
 import voting.DistributedVoting.DistributedVotingValidator;
 
 public class DistributedVotingManager {
 
-	private final List<DistributedVoteSubject> runningVotes = new ArrayList<>();
+	private List<DistributedVoteSubject> runningVotes = new ArrayList<>();
 	private Map<String, Map<String, Status>> closedVotes = new HashMap<>();
-	private DAG dag = null;
-	private List<VotingListener> listeners = new ArrayList<>(2);
+	private VotingWeighterBuilder weighter;
+	private volatile List<VotingListener> listeners = new CopyOnWriteArrayList<>();
 	
 	public void addVote(String voteSubject, String voteCat, DistributedVote vote){
 		
 		DistributedVoteSubject subject = null;
+		boolean newVote = false;
 		if(runningVotes.stream().anyMatch(x -> x.getSubject().equals(voteSubject))){
 			Optional<DistributedVoteSubject> optional = runningVotes.stream().filter(x -> x.getSubject().equals(voteSubject)).findFirst();
 			if(optional.isPresent()){
 				subject = optional.get();
+				newVote = false;
 			}
 		}else{
 			if(!closedVotes.containsKey(voteCat)){
-				subject = new DistributedVoteSubject(voteSubject);
+				int epochNum = Integer.parseInt(voteSubject.split("-")[1]);
+				
+				subject = new DistributedVoteSubject(voteSubject, weighter.fromEpoch(epochNum));
 				runningVotes.add(subject);
+				newVote = true;
 			}
 		}
+		
 		if(subject != null){
 			subject.addVote(voteCat, vote);
-			for(VotingListener listener : listeners){
-				listener.onVote(subject, voteCat, vote);
+			synchronized (listeners) {
+				for(VotingListener listener : listeners){
+					listener.onVote(subject, voteCat, vote, newVote);
+				}
 			}
 		} //else: vote already expired
 		
@@ -80,8 +89,8 @@ public class DistributedVotingManager {
 		RUNNING, ACCEPTED, DECLINED, UNDEFINED
 	}
 	
-	public DistributedVotingManager(DAG dag){
-		this.dag = dag;
+	public DistributedVotingManager(VotingWeighterBuilder weighter){
+		this.weighter = weighter;
 	}
 	
 	public void addListener(VotingListener listener){
@@ -90,8 +99,28 @@ public class DistributedVotingManager {
 		}
 	}
 	
-	interface VotingListener{
-		public void onVote(DistributedVoteSubject subject, String voteCat, DistributedVote vote);
+	public boolean removeListener(VotingListener listener){
+		return listeners.remove(listener);
+	}
+	
+	public interface VotingListener{
+		public void onVote(DistributedVoteSubject subject, String voteCat, DistributedVote vote, boolean newVote);
+	}
+	
+	public interface VotingWeighter{
+		
+		public Map<HexString, Double> getVotingWeights(); 
+		
+		public VotingWeighter getClone(int epochNum);
+		
+		public int getEpoch();
+		
+	}
+	
+	public interface VotingWeighterBuilder{
+		
+		public VotingWeighter fromEpoch(int epochNum);
+		
 	}
 	
 }

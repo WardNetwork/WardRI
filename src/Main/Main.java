@@ -2,8 +2,7 @@ package Main;
 
 import java.io.File;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.pmw.tinylog.Logger;
 
 import conf.ArgsConfigLoader;
 import conf.Configuration;
@@ -15,8 +14,6 @@ import newMain.RI;
 public class Main
 {
     public static final String DEFAULT_CONF_FILE = "ward.conf";
-    
-    private static final Logger log = LoggerFactory.getLogger(MainGenesisNode.class);
     
     public static void main(final String[] args) throws Exception {
     	
@@ -31,19 +28,17 @@ public class Main
         if (confFilePath != null) {
             new FileConfigLoader().loadInConfig(new File(confFilePath), conf);
         }
-        log.info("Starting Node on Port " + conf.getInt(Configuration.SELFPORT));
+        Logger.info("Starting Node on Port " + conf.getInt(Configuration.SELFPORT));
         
         RI ri = new RI();
         ri.init(conf);
         
         DAG dag = ri.getDAG();
-        TangleVisualizer visualizer = new TangleVisualizer(dag);
-        log.info(KeyStore.getPublicString());
-        log.info(KeyStore.getPrivateString());
+        Logger.info(KeyStore.getPublicString());
+        Logger.info(KeyStore.getPrivateString());
         
-        Thread.sleep(5000L);
+        //Thread.sleep(5000L);
         
-        new TangleSynchronizer(ri, ri.getShardedPool().getRandomNeighbor(), ri.getShardedPool()).synchronize();
-        CommandLineWaiter.startCommandLineInput(ri, visualizer, ri.getShardedPool());
+        CommandLineWaiter.startCommandLineInput(ri, ri.getShardedPool());
     }
 }

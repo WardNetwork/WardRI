@@ -48,7 +48,7 @@ public class HexString
     
     public static HexString fromHashString(String s) {
     	
-    	if(!isHexString(s)) {
+    	if(!isHexString(s) || s.length() % 2 != 0) {
     		Logger.error(s + " is not a Hexadecimal String!");
     	}
     	

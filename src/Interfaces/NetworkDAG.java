@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.rpanic.GroupedNeighborPool;
 
+import model.Hash;
 import model.HexString;
 import model.Ledger;
 import network.ObjectSerializer;
@@ -36,4 +37,10 @@ public class NetworkDAG implements DAGInsertable
     public Double getBalance(final HexString account) {
         return this.createLedger().getBalance(account);
     }
+
+	@Override
+	public Transaction getTransaction(Hash hash) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -5,16 +5,19 @@ import java.util.List;
 import java.util.Optional;
 
 import voting.DistributedVoting.DistributedVote;
+import voting.DistributedVotingManager.VotingWeighter;
 
 public class DistributedVoteSubject {
 
 	List<DistributedVoting> votings = new ArrayList<>();
 	
 	private String subject;
+	VotingWeighter weighter;
 
-	public DistributedVoteSubject(String subject) {
+	public DistributedVoteSubject(String subject, VotingWeighter weights) {
 		super();
 		this.subject = subject;
+		this.weighter = weights;
 	}
 	
 	public boolean addVote(String voteCat, DistributedVote vote){
@@ -27,7 +30,7 @@ public class DistributedVoteSubject {
 			}
 			
 		}else{
-			addVoting(new DistributedVoting(voteCat, null)); //TODO DAG entfernen
+			addVoting(new DistributedVoting(voteCat, weighter)); //TODO DAG entfernen
 			return addVote(voteCat, vote);
 		}
 		return false;

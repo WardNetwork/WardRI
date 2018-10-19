@@ -3,20 +3,21 @@ package newMain;
 import java.util.Comparator;
 
 import model.Hash;
+import sharded.DAGObject;
 
-public class TransactionReference {
-
-	Hash hash;
-	Transaction t;
+public class DAGObjectReference<E extends DAGObject<E>> {
 	
-	public TransactionReference(Hash hash){
+	Hash hash;
+	E t;
+	
+	public DAGObjectReference(Hash hash){
 		if(hash == null){
 			throw new UnsupportedOperationException("Hash can´t be null");
 		}
 		this.hash = hash;
 	}
 	
-	public TransactionReference(Transaction t){
+	public DAGObjectReference(E t){
 		if(t == null){
 			throw new UnsupportedOperationException("Transaction can´t be null");
 		}
@@ -33,12 +34,29 @@ public class TransactionReference {
 			return null;
 		}
 	}
-
-	public Transaction getTransaction(DAG dag) {
+	
+	//TODO Just temporarily
+	public E getTransaction(DAG dag){
 		if(t != null){
 			return t;
 		}else if(hash != null){
-			Transaction tx = dag.findTransaction(hash);
+			E tx = (E)dag.findTransaction(hash);
+			if(tx != null){
+				t = tx;
+				return t;
+			}else{
+				return null;
+			}
+		}else{
+			return null;
+		}
+	}
+
+	public E getTransaction(GenericDAG<E> dag) {
+		if(t != null){
+			return t;
+		}else if(hash != null){
+			E tx = dag.findTransaction(hash);
 			if(tx != null){
 				t = tx;
 				return t;
@@ -50,13 +68,12 @@ public class TransactionReference {
 		}
 	}
 	
-    public static Comparator<TransactionReference> getComparator(){
-    	return (x, y) -> {
+	public static <E extends DAGObject<E>> Comparator<DAGObjectReference<E>> getComparator(){
+		return (x, y) -> {
 			if(y == null || x == null){
 				return 0;
 			}
 			return x.getTxId().getHashString().compareTo(y.getTxId().getHashString());
 		};
-    }
-	
+	}
 }

@@ -10,7 +10,6 @@ import java.util.Scanner;
 
 import org.rpanic.Responser;
 
-import newMain.DAG;
 import newMain.RI;
 import newMain.Transaction;
 
@@ -57,19 +56,27 @@ public class TangleSyncResponser implements Responser<String, Socket>{
 				
 				writer.write(ret + " ;");
 				
+				System.out.println("Writing: " + ret);
+				
 				writer.flush();
 			
-				res = scanner.next();
-				
-				if(res.startsWith("check")) {
-					System.out.println("res:" + res);
+				if(scanner.hasNext()){
+					
 					res = scanner.next();
-				}
-				System.out.println("res:" + res);
+					System.out.println("Recieved: " + res);
 				
-				if(!res.contains("resTnglAck")) {
-					System.out.println("Not Acknoledged by Partner, aborting");
-					return;
+					if(res.startsWith("check")) {
+						res = scanner.next();
+					}
+					
+					if(!res.contains("resTnglAck")) {
+						System.out.println("Not Acknoledged by Partner, aborting");
+						return;
+					}
+				}else{
+					
+					System.out.println("Tangle not synced fully");
+					
 				}
 				
 			}
@@ -105,15 +112,11 @@ public class TangleSyncResponser implements Responser<String, Socket>{
 		
 		int index = 0;
 		
-		System.out.println("Numlists: " + numLists + " for " + list.size() + " elements ");
-		
 		for(int i = 0 ; i < list.size() ; i++) {
 			
 			Transaction t = list.get(i);
 			
 			String serialized = serializer.serialize(t);
-			
-			System.out.println(i + " " + serialized);
 			
 			txStrs.get(index).add(serialized);
 			

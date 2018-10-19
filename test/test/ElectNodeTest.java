@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import Main.TangleAlgorithms;
-import Main.Transaction;
+import newMain.Transaction;
 
 public class ElectNodeTest {
 

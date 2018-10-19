@@ -5,8 +5,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.pmw.tinylog.Logger;
+
 import Main.TangleAlgorithms;
-import newMain.Transaction;
 import model.HexString;
 
 public class TxCreator {
@@ -27,13 +28,18 @@ public class TxCreator {
 		//elect
 		
 		Set<Transaction> confirmation = electTransactions();
-		Set<TransactionReference> references = confirmation.stream().map(x -> new TransactionReference(x)).collect(Collectors.toSet());
+		
+		Logger.error("Elected: " + confirmation.stream().map(x -> x.getTxId().getHashString()).reduce((x, y) -> x + ", " + y).orElse("none"));
+		
+		Set<DAGObjectReference<Transaction>> references = confirmation.stream().map(x -> new DAGObjectReference<Transaction>(x)).collect(Collectors.toSet());
 		
 		//Create, Sign & Pow
 		
 		KeyPair keypair = ri.getKeyPair();
 
 		Transaction t = builder.setConfirmed(references).solveProof().sign(keypair).buildTransaction();
+		
+		Logger.error("TxId: " + t.getTxId());
 		
 		return t;
 		

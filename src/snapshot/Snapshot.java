@@ -2,7 +2,6 @@ package snapshot;
 
 import model.Ledger;
 import newMain.DAG;
-import newMain.Transaction;
 
 public class Snapshot
 {

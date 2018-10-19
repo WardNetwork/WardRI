@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
+
+import org.pmw.tinylog.Logger;
 
 import model.Hash;
 import newMain.Transaction;
@@ -83,7 +84,7 @@ public class TransactionQueue {
 					conflicts.remove(i);
 				}
 				
-				System.out.println("Tx resolved and added");
+				Logger.debug("Tx resolved and added");
 				
 			}
 			

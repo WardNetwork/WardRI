@@ -1,4 +1,4 @@
-package Main;
+package sync;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,13 +11,13 @@ import newMain.RI;
 import newMain.Transaction;
 import newMain.TxInserter;
 
-public class TangleSynchronizer
+public class LocalDAGSynchronizer
 {
     RI ri;
     TCPNeighbor neighbor;
     GroupedNeighborPool pool;
     
-    public TangleSynchronizer(RI ri, TCPNeighbor neighbor, GroupedNeighborPool pool) {
+    public LocalDAGSynchronizer(RI ri, TCPNeighbor neighbor, GroupedNeighborPool pool) {
         this.ri = ri;
         this.neighbor = neighbor;
         this.pool = pool;
@@ -30,18 +30,18 @@ public class TangleSynchronizer
         	System.out.println("Sending reqTngl");
         	
             String res = neighbor.send("reqTngl");
+			System.out.println("Recieved: " + res);
             
             List<Transaction> transactions = new ArrayList<>();
             
             while(!res.contains("endOfTangleSync")) {
             	
-            	System.out.println("REsponse: " + res);
-            	
                 transactions.addAll(processResponse(res));
                 
                 res = neighbor.send("resTnglAck");
+				System.out.println("Sending: resTnglAck");
+				System.out.println("Recieved: " + res);
                 
-                System.out.println("res " + res);
                 
             }
             
@@ -74,8 +74,6 @@ public class TangleSynchronizer
     	if (response.startsWith("resTngl ")) {
     		
     		response = response.substring(8);
-            System.out.println("Response recieved");
-            System.out.println("Responded Tanglesync with " + response);
             
             String[] txStrs = response.split(",");
             List<Transaction> list = new ArrayList<Transaction>();

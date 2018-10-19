@@ -4,6 +4,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
+import org.pmw.tinylog.Logger;
+
 import model.Hash;
 
 public class TransactionProof {
@@ -48,7 +50,7 @@ public class TransactionProof {
 		
 		long timeEnd = System.currentTimeMillis();
 		
-		System.out.println("Solution found, time: " + ((timeEnd-timeStart)/1000) + " seconds");
+		Logger.debug("Solution found, time: " + ((timeEnd-timeStart)/1000) + " seconds");
 		
 		this.solution = randomStr;
 		

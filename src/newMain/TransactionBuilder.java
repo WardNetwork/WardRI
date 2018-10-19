@@ -4,16 +4,11 @@ import java.security.KeyPair;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import Main.TransactionProof;
 import model.Hash;
 import model.HexString;
 
 public class TransactionBuilder {
-
-	protected static Logger log = LoggerFactory.getLogger(TransactionBuilder.class);
 	
 	private Hash TxId;
 	private HexString sender;
@@ -28,8 +23,7 @@ public class TransactionBuilder {
     
     protected HexString signature;
     
-    protected Set<TransactionReference> confirmed;
-    protected Set<Transaction> confirmedBy;
+    protected Set<DAGObjectReference<Transaction>> confirmed;
     
     private byte fieldFilled = 0;
     private static byte CONFIRMED_FIELD = 1, SIGNATURE_FIELD = 2, PROOF_FIELD = 4;
@@ -43,7 +37,7 @@ public class TransactionBuilder {
 		this.createdTimestamp = System.currentTimeMillis();
 	}
 	
-	public TransactionBuilder setConfirmed(Set<TransactionReference> ref){
+	public TransactionBuilder setConfirmed(Set<DAGObjectReference<Transaction>> ref){
 		this.confirmed = ref;
 		this.TxId = CryptoUtil.hashSHA256(createHashString());
 		fieldFilled |= CONFIRMED_FIELD;
@@ -96,7 +90,7 @@ public class TransactionBuilder {
 	public String createHashString(){
 		String s = String.valueOf(this.createdTimestamp) + this.sender + this.reciever + this.value;
 	    
-		for(TransactionReference h : confirmed.stream().sorted(TransactionReference.getComparator()).collect(Collectors.toList())){
+		for(DAGObjectReference<Transaction> h : confirmed.stream().sorted(DAGObjectReference.getComparator()).collect(Collectors.toList())){
 			s += h.getTxId().getHashString();
 		}
 		

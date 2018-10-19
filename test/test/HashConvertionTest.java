@@ -1,7 +1,7 @@
 package test;
 
-import Main.Transaction;
 import model.HexString;
+import newMain.Transaction;
 
 public class HashConvertionTest {
 

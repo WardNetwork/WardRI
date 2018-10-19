@@ -4,16 +4,14 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
+import org.pmw.tinylog.Logger;
 import org.rpanic.Responser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import model.Hash;
 import network.ObjectSerializer;
 
 public class GetResponder implements Responser<String, Socket> {
-
-	Logger log = LoggerFactory.getLogger(GetResponder.class);
+	
 	RI ri;
 	
 	public GetResponder(RI ri) {
@@ -31,7 +29,7 @@ public class GetResponder implements Responser<String, Socket> {
 		String[] tokens = response.split(" ");
 		
 		if(tokens.length < 3){
-			log.debug("Request " + response + " not valid!");
+			Logger.debug("Request " + response + " not valid!");
 			return;
 		}
 		
@@ -48,7 +46,7 @@ public class GetResponder implements Responser<String, Socket> {
 					
 					break;
 				default: 
-					log.debug("Type " + type + " not valid!");
+					Logger.debug("Type " + type + " not valid!");
 			}
 			
 		}catch(IOException e){

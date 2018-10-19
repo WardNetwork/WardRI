@@ -9,11 +9,13 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import newMain.Transaction;
-import newMain.TransactionReference;
-import keys.KeyStore;
+import org.pmw.tinylog.Logger;
+
 import model.Hash;
 import model.HexString;
+import newMain.DAGObjectReference;
+import newMain.Transaction;
+import sharded.ShardingLevelTransaction;
 
 public class ObjectSerializer
 {
@@ -26,6 +28,80 @@ public class ObjectSerializer
     
     public Hash parseHash(String s) {
         return Hash.fromHashString(s);
+    }
+    
+    public String serialize(ShardingLevelTransaction t){
+    	
+    	final List<String> str = new ArrayList<String>();
+        
+        str.add(t.getSender().toString());
+        str.add(t.getData().toString());
+        str.add(Long.toString(t.getEpoch()));
+        str.add(t.getCreatedTimestamp() + "");
+        
+        if(t.getPowProof() == null || t.getPowProof().getSolution() == null) {
+        	System.out.println("Transactionproof is null");
+        }
+        
+        str.add(t.getPowProof().getSolution());
+        
+        str.add(t.getSignature().getHashString());
+        
+        str.add(t.getTxId().getHashString());
+        
+        for (DAGObjectReference<ShardingLevelTransaction> confirmed : t.getConfirmed().stream().sorted(DAGObjectReference.getComparator()).collect(Collectors.toList())) {
+            
+            str.add(confirmed.getTxId().getHashString());
+            
+        }
+        
+        return String.join(" ", str);
+    }
+    
+    public ShardingLevelTransaction parseShardedTransaction(String s) {
+    	try{
+    		if(s == null || s.equals("")){
+    			return null;
+    		}
+    		
+	        String[] tokenized = s.split(" ");
+	        
+	        if(tokenized.length < 6){
+	        	return null;
+	        }
+	        
+	        if(tokenized[2].startsWith("0x")){
+	        	System.out.println(s);
+	        }
+	        
+	        HexString sender = HexString.fromHashString(tokenized[0]);
+	        Object data = tokenized[1];
+	        long epochNum = Long.parseLong(tokenized[2]);
+	        long createdTimestamp = Long.parseLong(tokenized[3]);
+	        
+	        String powSolution = tokenized[4];
+	        HexString signature = HexString.fromHashString(tokenized[5]);
+	        HexString txId = HexString.fromHashString(tokenized[6]); //Check TxId
+	        Set<DAGObjectReference<ShardingLevelTransaction>> confirmed = new HashSet<>();
+	        for (int i = 7; i < tokenized.length; i++) {
+	            String confirmation = tokenized[i];
+	            confirmed.add(new DAGObjectReference<>(Hash.fromHashString(confirmation)));
+	        }
+	        
+	        ShardingLevelTransaction t = new ShardingLevelTransaction(sender, data, createdTimestamp, epochNum, powSolution, signature, confirmed);
+	        
+	        if(!txId.equals(t.getTxId())) {
+	        	Logger.error("TxId Checksum is not right!");
+	        	Thread.dumpStack();
+	        }else {
+	        	Logger.debug("Checksum correct");
+	        }
+	        
+	        return t;
+    	}catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	return null;
     }
     
     public String serialize(Transaction t) {
@@ -45,7 +121,7 @@ public class ObjectSerializer
         
         str.add(t.getSignature().getHashString());
         
-        for (TransactionReference confirmed : t.getConfirmed().stream().sorted(TransactionReference.getComparator()).collect(Collectors.toList())) {
+        for (DAGObjectReference<Transaction> confirmed : t.getConfirmed().stream().sorted(DAGObjectReference.getComparator()).collect(Collectors.toList())) {
             
             str.add(confirmed.getTxId().getHashString());
             
@@ -56,7 +132,15 @@ public class ObjectSerializer
     
     public Transaction parseTransaction(String s) {
     	try{
+    		if(s == null || s.equals("")){
+    			return null;
+    		}
+    		
 	        String[] tokenized = s.split(" ");
+	        
+	        if(tokenized.length < 6){
+	        	return null;
+	        }
 	        
 	        if(tokenized[2].startsWith("0x")){
 	        	System.out.println(s);
@@ -69,10 +153,10 @@ public class ObjectSerializer
 	        
 	        String powSolution = tokenized[4];
 	        HexString signature = HexString.fromHashString(tokenized[5]);
-	        Set<TransactionReference> confirmed = new HashSet<>();
+	        Set<DAGObjectReference<Transaction>> confirmed = new HashSet<>();
 	        for (int i = 6; i < tokenized.length; ++i) {
 	            String confirmation = tokenized[i];
-	            confirmed.add(new TransactionReference(Hash.fromHashString(confirmation)));
+	            confirmed.add(new DAGObjectReference<>(Hash.fromHashString(confirmation)));
 	        }
 	        
 	        Transaction t = new Transaction(sender, reciever, value, null /* TODO */, createdTimestamp, powSolution, signature, confirmed);

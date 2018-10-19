@@ -4,15 +4,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
+import Interfaces.DAGInsertable;
 import Interfaces.LocalTangleInterface;
-import Interfaces.DAGInsertable;
-import Interfaces.DAGInsertable;
 import Main.CommandLineWaiter;
 import Main.MainGenesisNode;
 import Main.Tangle;
-import Main.Transaction;
 import conf.Configuration;
 import model.HexString;
+import newMain.Transaction;
 
 public class TangleSpeedTest {
 

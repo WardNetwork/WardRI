@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import Interfaces.DAGInsertable;
 import model.Hash;
 import model.HexString;
 import model.Ledger;
+import voting.Epoch;
 
 public class DAG implements DAGInsertable{
 	
@@ -50,6 +52,20 @@ public class DAG implements DAGInsertable{
 	@Override
 	public Double getBalance(HexString p0) {
 		return currentLedger.getBalance(p0);
+	}
+	
+	public List<Transaction> getTransactionsInEpoch(Epoch epoch, long epochNum){
+		long endtime = epoch.getEndTime(epochNum);
+		long beginTime = epoch.getBeginningTime(epochNum);
+		
+		return transactionList.stream()
+		.filter(x -> x.getCreatedTimestamp() < endtime && x.getCreatedTimestamp() >= beginTime)
+		.collect(Collectors.toList());
+	}
+
+	@Override
+	public Transaction getTransaction(Hash hash) {
+		return findTransaction(hash);
 	}
 	
 }

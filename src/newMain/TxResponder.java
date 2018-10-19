@@ -1,13 +1,9 @@
 package newMain;
 
 import java.net.Socket;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.rpanic.Responser;
 
-import model.Hash;
-import model.HexString;
 import network.ObjectSerializer;
 
 public class TxResponder implements Responser<String, Socket>{

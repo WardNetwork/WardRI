@@ -8,19 +8,15 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import Main.TransactionProof;
 import model.Hash;
 import model.HexString;
+import sharded.DAGObject;
 
-public class Transaction implements Hashable{
-	
-	protected static Logger log = LoggerFactory.getLogger(Transaction.class);
+public class Transaction implements Hashable, DAGObject<Transaction>{
 	
 	private Hash TxId;
-	public HexString sender; //TODO private
+	private HexString sender; //TODO private
 	private HexString reciever;
 	
 	private double value;
@@ -28,15 +24,15 @@ public class Transaction implements Hashable{
 	private Object data;
     
 	private long createdTimestamp;
-	protected TransactionProof powProof;
+	private TransactionProof powProof;
     
     public HexString signature;//TODO private
     
-    protected Set<TransactionReference> confirmed;
+    protected Set<DAGObjectReference<Transaction>> confirmed;
     protected Set<Transaction> confirmedBy;
     
     public Transaction(HexString sender, HexString reciever, double value, Object data, long createdTimestamp,
-			String powProof, HexString signature, Set<TransactionReference> confirmed) {
+			String powProof, HexString signature, Set<DAGObjectReference<Transaction>> confirmed) {
 		super();
 		this.sender = sender;
 		this.reciever = reciever;
@@ -53,10 +49,6 @@ public class Transaction implements Hashable{
 			this.powProof = new TransactionProof(this.TxId);
 		}
 	}
-    
-    public void genesisRecalculateTxId(){
-		this.TxId = CryptoUtil.hashSHA256(createHashString());
-    }
 
 	public double getNodePowWeight(){
     	String powResult;
@@ -84,8 +76,12 @@ public class Transaction implements Hashable{
 		}
 		return weight;
 	}
-
-	public Set<TransactionReference> getConfirmed() {
+    
+    public void genesisRecalculateTxId(){
+		this.TxId = CryptoUtil.hashSHA256(createHashString());
+    }
+    
+	public Set<DAGObjectReference<Transaction>> getConfirmed() {
 		return confirmed;
 	}
 
@@ -125,7 +121,7 @@ public class Transaction implements Hashable{
 	public String createHashString() {
 		String s = String.valueOf(this.createdTimestamp) + this.sender + this.reciever + this.value;
         
-    	for(TransactionReference h : getConfirmed().stream().sorted(TransactionReference.getComparator()).collect(Collectors.toList())){
+    	for(DAGObjectReference<Transaction> h : getConfirmed().stream().sorted(DAGObjectReference.getComparator()).collect(Collectors.toList())){
     		s += h.getTxId().getHashString();
     	}
     	
@@ -138,6 +134,9 @@ public class Transaction implements Hashable{
 				+ ". data=" + data + ", createdTimestamp=" + createdTimestamp + ", confirmed=" + confirmed.toString() + "]";
 	}
 	
-	
+	public void setSenderGenesis(HexString sender) {
+		this.sender = sender;
+		genesisRecalculateTxId();
+	}
 	
 }

@@ -24,9 +24,12 @@ public class EpochSyncResponder implements Responser<String, Socket>{
 	@Override
 	public void accept(String response, Socket socket) {
 		
-		try(BufferedWriter w = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))){
+		try{
+			BufferedWriter w = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+					
+			String res = "epochres " + e.getStartTime();
 			
-			String res = "epochres " + e.getBeginningTime();
+			System.out.println("Replying: " + res);
 			
 			w.write(res + " ;");
 			w.flush();
